@@ -1723,9 +1723,13 @@
           `${list.length} ${list.length === 1 ? "sale" : "sales"}`;
       }
       function renderNet(sales) {
-        const opExpenses = load(EXPENSES_KEY).filter(
-          (e) => !e.sourceInvoiceId && e.type === "operating",
-        );
+        // Taken from profit: the whole cost of operating expenses, plus the
+        // shipping of EVERY expense (including purchase invoices).
+        const allExpenses = load(EXPENSES_KEY);
+        const fromProfit = (e) =>
+          (!e.sourceInvoiceId && e.type === "operating"
+            ? Number(e.cost) || 0
+            : 0) + (Number(e.shipping) || 0);
         const now = new Date();
         const today = dayStart(now);
         const thisWeek = weekStart(now);
@@ -1740,9 +1744,9 @@
           const benefit = sales
             .filter((s) => inPeriod(new Date(s.date)))
             .reduce((t, s) => t + Number(s.benefit), 0);
-          const spent = opExpenses
+          const spent = allExpenses
             .filter((e) => inPeriod(new Date(e.date)))
-            .reduce((t, e) => t + Number(e.cost) + Number(e.shipping), 0);
+            .reduce((t, e) => t + fromProfit(e), 0);
           const net = benefit - spent;
           const el = document.getElementById("net" + name);
           el.textContent = `${fmt(net)} Toman`;
