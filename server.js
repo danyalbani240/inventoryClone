@@ -8,9 +8,12 @@ const { DatabaseSync } = require("node:sqlite");
 
 // ---------- .env ----------
 try {
-  for (const line of fs.readFileSync(path.join(__dirname, ".env"), "utf8").split(/\r?\n/)) {
+  for (const line of fs
+    .readFileSync(path.join(__dirname, ".env"), "utf8")
+    .split(/\r?\n/)) {
     const m = /^\s*([A-Z_]+)\s*=\s*(.*?)\s*$/.exec(line);
-    if (m && !line.trim().startsWith("#") && !(m[1] in process.env)) process.env[m[1]] = m[2];
+    if (m && !line.trim().startsWith("#") && !(m[1] in process.env))
+      process.env[m[1]] = m[2];
   }
 } catch {}
 
@@ -19,7 +22,9 @@ const PORT = Number(process.env.PORT) || 3000;
 const HOST = process.env.HOST || "0.0.0.0";
 const AUTO_SYNC = process.env.AUTO_SYNC === "1";
 if (!PASSWORD || PASSWORD === "choose-a-long-password") {
-  console.error("Set APP_PASSWORD in the .env file first (copy .env.example to .env).");
+  console.error(
+    "Set APP_PASSWORD in the .env file first (copy .env.example to .env).",
+  );
   process.exit(1);
 }
 
@@ -27,7 +32,10 @@ const ROOT = __dirname;
 const PUBLIC = path.join(ROOT, "public");
 const DB_FILE = path.join(ROOT, "data", "shop.db");
 const SESSION_DAYS = 30;
-const SECRET = crypto.createHash("sha256").update("shop-session:" + PASSWORD).digest();
+const SECRET = crypto
+  .createHash("sha256")
+  .update("shop-session:" + PASSWORD)
+  .digest();
 
 const ALLOWED_KEYS = new Set([
   "inventory-manager-products-v1",
@@ -45,7 +53,9 @@ const ALLOWED_KEYS = new Set([
 // ---------- git sync (optional) ----------
 function git(...args) {
   return new Promise((resolve) => {
-    execFile("git", args, { cwd: ROOT }, (err, stdout, stderr) => resolve({ err, out: stdout + stderr }));
+    execFile("git", args, { cwd: ROOT }, (err, stdout, stderr) =>
+      resolve({ err, out: stdout + stderr }),
+    );
   });
 }
 let pushTimer = null;
@@ -58,12 +68,18 @@ function schedulePush() {
 async function pushNow() {
   if (!AUTO_SYNC || pushing) return;
   pushing = true;
+  console.log("pushing");
   clearTimeout(pushTimer);
   await git("add", "data/shop.db");
   const c = await git("commit", "-m", "data " + new Date().toISOString());
   if (!c.err) {
     const p = await git("push");
-    console.log(p.err ? "git push FAILED (pull first? another machine may have saved):\n" + p.out : "Pushed data to GitHub.");
+    console.log(
+      p.err
+        ? "git push FAILED (pull first? another machine may have saved):\n" +
+            p.out
+        : "Pushed data to GitHub.",
+    );
   }
   pushing = false;
 }
@@ -72,7 +88,9 @@ async function pushNow() {
 async function openDb() {
   if (AUTO_SYNC) {
     const r = await git("pull", "--ff-only");
-    console.log(r.err ? "git pull FAILED:\n" + r.out : "git pull: " + r.out.trim());
+    console.log(
+      r.err ? "git pull FAILED:\n" + r.out : "git pull: " + r.out.trim(),
+    );
   }
   const db = new DatabaseSync(DB_FILE);
   db.exec("PRAGMA journal_mode = DELETE"); // keeps the data in ONE file, good for git
@@ -87,7 +105,11 @@ async function openDb() {
 
 // ---------- sessions ----------
 function sign(exp) {
-  return exp + "." + crypto.createHmac("sha256", SECRET).update(String(exp)).digest("hex");
+  return (
+    exp +
+    "." +
+    crypto.createHmac("sha256", SECRET).update(String(exp)).digest("hex")
+  );
 }
 function validSession(req) {
   const m = /(?:^|;\s*)shop_session=([^;]+)/.exec(req.headers.cookie || "");
@@ -95,7 +117,10 @@ function validSession(req) {
   const [exp, mac] = decodeURIComponent(m[1]).split(".");
   if (!exp || !mac || Number(exp) < Date.now()) return false;
   const good = crypto.createHmac("sha256", SECRET).update(exp).digest("hex");
-  return mac.length === good.length && crypto.timingSafeEqual(Buffer.from(mac), Buffer.from(good));
+  return (
+    mac.length === good.length &&
+    crypto.timingSafeEqual(Buffer.from(mac), Buffer.from(good))
+  );
 }
 const attempts = new Map(); // ip -> [timestamps]
 function tooManyAttempts(ip) {
@@ -117,7 +142,11 @@ const TYPES = {
   ".woff2": "font/woff2",
 };
 function json(res, code, obj, headers = {}) {
-  res.writeHead(code, { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store", ...headers });
+  res.writeHead(code, {
+    "Content-Type": "application/json; charset=utf-8",
+    "Cache-Control": "no-store",
+    ...headers,
+  });
   res.end(JSON.stringify(obj));
 }
 function readBody(req, limit = 100 * 1024 * 1024) {
@@ -145,16 +174,21 @@ function serveStatic(req, res, urlPath) {
     res.writeHead(400).end("Bad request");
     return;
   }
-  if (!file.startsWith(PUBLIC + path.sep)) return res.writeHead(403).end("Forbidden");
+  if (!file.startsWith(PUBLIC + path.sep))
+    return res.writeHead(403).end("Forbidden");
   const type = TYPES[path.extname(file).toLowerCase()];
-  if (!type || !fs.existsSync(file) || !fs.statSync(file).isFile()) return res.writeHead(404).end("Not found");
+  if (!type || !fs.existsSync(file) || !fs.statSync(file).isFile())
+    return res.writeHead(404).end("Not found");
 
   if (type.startsWith("text/html")) {
     // Inject the database script into every page, so the HTML files need no edits.
     let html = fs.readFileSync(file, "utf8");
     if (!html.includes("/db.js") && path.basename(file) !== "login.html") {
       html = /<head[^>]*>/i.test(html)
-        ? html.replace(/<head[^>]*>/i, (m) => m + '<script src="/db.js"></script>')
+        ? html.replace(
+            /<head[^>]*>/i,
+            (m) => m + '<script src="/db.js"></script>',
+          )
         : '<script src="/db.js"></script>' + html;
     }
     res.writeHead(200, { "Content-Type": type, "Cache-Control": "no-store" });
@@ -168,8 +202,12 @@ function serveStatic(req, res, urlPath) {
 openDb().then((db) => {
   const getAll = db.prepare("SELECT k, v, ver FROM kv");
   const getOne = db.prepare("SELECT ver FROM kv WHERE k = ?");
-  const insert = db.prepare("INSERT INTO kv (k, v, ver, updated_at) VALUES (?, ?, 1, ?)");
-  const update = db.prepare("UPDATE kv SET v = ?, ver = ver + 1, updated_at = ? WHERE k = ?");
+  const insert = db.prepare(
+    "INSERT INTO kv (k, v, ver, updated_at) VALUES (?, ?, 1, ?)",
+  );
+  const update = db.prepare(
+    "UPDATE kv SET v = ?, ver = ver + 1, updated_at = ? WHERE k = ?",
+  );
 
   const server = http.createServer(async (req, res) => {
     try {
@@ -178,7 +216,8 @@ openDb().then((db) => {
       const ip = req.socket.remoteAddress || "";
 
       if (p === "/api/login" && req.method === "POST") {
-        if (tooManyAttempts(ip)) return json(res, 429, { error: "Too many attempts. Wait a minute." });
+        if (tooManyAttempts(ip))
+          return json(res, 429, { error: "Too many attempts. Wait a minute." });
         let pass = "";
         try {
           pass = JSON.parse(await readBody(req, 10000)).password || "";
@@ -190,19 +229,33 @@ openDb().then((db) => {
           return json(res, 401, { error: "Wrong password." });
         }
         const exp = Date.now() + SESSION_DAYS * 86400000;
-        const secure = req.headers["x-forwarded-proto"] === "https" ? "; Secure" : "";
-        return json(res, 200, { ok: true }, {
-          "Set-Cookie": `shop_session=${encodeURIComponent(sign(exp))}; HttpOnly; SameSite=Lax; Path=/; Max-Age=${SESSION_DAYS * 86400}${secure}`,
-        });
+        const secure =
+          req.headers["x-forwarded-proto"] === "https" ? "; Secure" : "";
+        return json(
+          res,
+          200,
+          { ok: true },
+          {
+            "Set-Cookie": `shop_session=${encodeURIComponent(sign(exp))}; HttpOnly; SameSite=Lax; Path=/; Max-Age=${SESSION_DAYS * 86400}${secure}`,
+          },
+        );
       }
       if (p === "/api/logout") {
-        return json(res, 200, { ok: true }, { "Set-Cookie": "shop_session=; HttpOnly; Path=/; Max-Age=0" });
+        return json(
+          res,
+          200,
+          { ok: true },
+          { "Set-Cookie": "shop_session=; HttpOnly; Path=/; Max-Age=0" },
+        );
       }
       if (p === "/login.html") return serveStatic(req, res, p);
 
       if (!validSession(req)) {
-        if (p.startsWith("/api/")) return json(res, 401, { error: "unauthorized" });
-        res.writeHead(302, { Location: "/login.html?next=" + encodeURIComponent(p) });
+        if (p.startsWith("/api/"))
+          return json(res, 401, { error: "unauthorized" });
+        res.writeHead(302, {
+          Location: "/login.html?next=" + encodeURIComponent(p),
+        });
         return res.end();
       }
 
@@ -220,10 +273,12 @@ openDb().then((db) => {
         const body = JSON.parse(await readBody(req));
         const { k, v } = body;
         const ver = Number(body.ver) || 0;
-        if (!ALLOWED_KEYS.has(k) || typeof v !== "string") return json(res, 400, { error: "bad request" });
+        if (!ALLOWED_KEYS.has(k) || typeof v !== "string")
+          return json(res, 400, { error: "bad request" });
         const row = getOne.get(k);
         const current = row ? row.ver : 0;
-        if (current !== ver) return json(res, 409, { error: "conflict", ver: current });
+        if (current !== ver)
+          return json(res, 409, { error: "conflict", ver: current });
         const now = new Date().toISOString();
         if (row) update.run(v, now, k);
         else insert.run(k, v, now);
@@ -239,7 +294,9 @@ openDb().then((db) => {
     }
   });
 
-  server.listen(PORT, HOST, () => console.log(`Shop app running: http://localhost:${PORT}`));
+  server.listen(PORT, HOST, () =>
+    console.log(`Shop app running: http://localhost:${PORT}`),
+  );
 
   const shutdown = async () => {
     server.close();
