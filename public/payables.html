@@ -1,0 +1,541 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <link rel="stylesheet" href="index.css" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Payables</title>
+    <style>
+      :root {
+        --bg: #f5f7fb;
+        --card: #ffffff;
+        --text: #18202a;
+        --muted: #6b7280;
+        --border: #e5e7eb;
+        --primary: #2563eb;
+        --primary-hover: #1d4ed8;
+        --danger: #dc2626;
+        --success: #059669;
+        --warning: #b45309;
+        --shadow: 0 10px 30px rgba(15, 23, 42, 0.07);
+        --radius: 16px;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background: var(--bg);
+        color: var(--text);
+      }
+      .container { width: min(1175px, calc(100% - 32px)); margin: 0 auto; padding: 32px 0 48px; }
+      header { margin-bottom: 24px; }
+      h1 { margin: 0 0 6px; font-size: clamp(28px, 5vw, 40px); letter-spacing: -0.03em; }
+      .subtitle { margin: 0; color: var(--muted); }
+      .grid { display: grid; grid-template-columns: 330px 1fr; gap: 20px; align-items: start; }
+      .card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); }
+      .form-card { padding: 20px; position: sticky; top: 20px; }
+      h2 { margin: 0 0 16px; font-size: 18px; }
+      .field { margin-bottom: 14px; }
+      label { display: block; margin-bottom: 7px; font-size: 14px; font-weight: 600; }
+      input, button, textarea { font: inherit; }
+      input[type="text"], input[type="number"], input[type="date"] {
+        width: 100%; border: 1px solid #d1d5db; border-radius: 10px; padding: 11px 12px;
+        background: #fff; color: var(--text); outline: none;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+      }
+      input:focus, textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12); }
+      textarea { width: 100%; border: 1px solid #d1d5db; border-radius: 10px; padding: 11px 12px; resize: vertical; outline: none; }
+      .hint { margin: 6px 0 0; font-size: 12px; color: var(--muted); }
+      .button { border: 0; border-radius: 10px; padding: 11px 14px; cursor: pointer; font-weight: 700; transition: 0.15s ease; }
+      .button-primary { width: 100%; background: var(--primary); color: white; }
+      .button-primary:hover { background: var(--primary-hover); }
+      .button-secondary { background: #eef2ff; color: #3730a3; }
+      .button-secondary:hover { background: #e0e7ff; }
+      .button-danger { background: #fee2e2; color: var(--danger); }
+      .button-danger:hover { background: #fecaca; }
+      .button-small { padding: 8px 10px; font-size: 13px; }
+      .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; padding: 16px 20px; border-bottom: 1px solid var(--border); }
+      .stat { padding: 14px; background: #f8fafc; border: 1px solid var(--border); border-radius: 12px; }
+      .stat-label { color: var(--muted); font-size: 12px; margin-bottom: 5px; }
+      .stat-value { font-size: 19px; font-weight: 800; overflow-wrap: anywhere; }
+      .stat-sub { margin-top: 3px; font-size: 12px; color: var(--muted); }
+      .table-wrap { overflow-x: auto; }
+      table { width: 100%; border-collapse: collapse; min-width: 720px; }
+      th, td { padding: 14px 20px; text-align: left; border-bottom: 1px solid var(--border); vertical-align: middle; }
+      th { background: #fafafa; font-size: 13px; color: var(--muted); font-weight: 700; }
+      tbody tr:last-child td { border-bottom: 0; }
+      .name-cell { cursor: pointer; }
+      .person-name { font-weight: 700; }
+      .person-notes { margin-top: 3px; font-size: 13px; color: var(--muted); max-width: 280px; white-space: pre-wrap; }
+      .num { font-variant-numeric: tabular-nums; white-space: nowrap; font-weight: 800; }
+      .tag { display: inline-block; padding: 4px 9px; border-radius: 999px; font-size: 12px; font-weight: 700; }
+      .tag-edited { background: #fef3c7; color: #92400e; margin-left: 8px; }
+      .status-badge { display: inline-block; padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; white-space: nowrap; }
+      .status-unpaid { background: #fee2e2; color: #991b1b; }
+      .status-partial { background: #fef3c7; color: var(--warning); }
+      .status-paid { background: #dcfce7; color: #166534; }
+      .actions { display: flex; justify-content: flex-end; gap: 6px; }
+      .empty { padding: 44px 20px; text-align: center; color: var(--muted); }
+      .empty strong { display: block; color: var(--text); margin-bottom: 5px; font-size: 17px; }
+      .notice { display: none; margin-top: 12px; padding: 10px 12px; border-radius: 10px; font-size: 13px; }
+      .notice.show { display: block; }
+      .notice.error { background: #fee2e2; color: #991b1b; }
+      .notice.success { background: #dcfce7; color: #166534; }
+      .panel-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 20px; border-bottom: 1px solid var(--border); }
+      .panel-head h2 { margin: 0; }
+      .modal-backdrop {
+        position: fixed; inset: 0; z-index: 20; display: none; align-items: flex-start; justify-content: center;
+        padding: 40px 16px; background: rgba(15, 23, 42, 0.55); overflow-y: auto;
+      }
+      .modal-backdrop.show { display: flex; }
+      .modal { background: #fff; border-radius: var(--radius); width: min(560px, 100%); box-shadow: var(--shadow); overflow: hidden; }
+      .modal-head { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid var(--border); }
+      .modal-head h2 { margin: 0; }
+      .modal-close { border: 0; background: transparent; font-size: 20px; line-height: 1; cursor: pointer; color: var(--muted); padding: 4px; }
+      .modal-body { padding: 20px; max-height: 70vh; overflow-y: auto; }
+      .modal-footer { padding: 16px 20px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 8px; }
+      .detail-row { display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
+      .detail-row:last-child { border-bottom: 0; }
+      .detail-row .k { color: var(--muted); flex: none; }
+      .detail-row .v { text-align: right; font-weight: 600; white-space: pre-wrap; }
+      .history-log h3 { margin: 18px 0 10px; font-size: 14px; }
+      .history-entry { border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; font-size: 13px; }
+      .history-entry .when { color: var(--muted); font-size: 12px; margin-bottom: 6px; }
+      .history-change { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 3px; }
+      .history-change .field { font-weight: 700; margin: 0; }
+      .history-change .before { color: var(--danger); text-decoration: line-through; }
+      .history-change .after { color: var(--success); }
+      @media (max-width: 820px) {
+        .grid { grid-template-columns: 1fr; }
+        .form-card { position: static; }
+        .stats { grid-template-columns: repeat(2, 1fr); }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="container">
+      <nav class="nav">
+        <a href="index.html">Inventory</a>
+        <a href="sales.html">Sales Log</a>
+        <a href="expenses.html">Expenses</a>
+        <a href="receivables.html">Receivables</a>
+        <a href="payables.html" class="active">Payables</a>
+      </nav>
+
+      <header>
+        <h1>Payables</h1>
+        <p class="subtitle">People and companies the shop owes money to — accounts payable.</p>
+      </header>
+
+      <section class="grid">
+        <aside class="card form-card">
+          <h2>Add Record</h2>
+          <form id="debtForm" autocomplete="off">
+            <div class="field">
+              <label for="debtName">Person / company</label>
+              <input id="debtName" type="text" maxlength="150" placeholder="e.g. Foroushgah-e Sepehr" required />
+            </div>
+            <div class="field">
+              <label for="debtAmount">Total amount owed (Toman)</label>
+              <input id="debtAmount" type="number" step="any" min="0" required />
+            </div>
+            <div class="field">
+              <label for="debtPaid">Already paid (Toman)</label>
+              <input id="debtPaid" type="number" step="any" min="0" value="0" />
+            </div>
+            <div class="field">
+              <label for="debtDate">Date</label>
+              <input id="debtDate" type="date" required />
+            </div>
+            <div class="field">
+              <label for="debtNotes">Description / notes (optional)</label>
+              <textarea id="debtNotes" rows="3" maxlength="500" placeholder="What it's for..."></textarea>
+            </div>
+            <button class="button button-primary" type="submit">Add Record</button>
+            <div id="notice" class="notice"></div>
+          </form>
+        </aside>
+
+        <section class="card">
+          <div class="stats">
+            <div class="stat">
+              <div class="stat-label">Total we owe</div>
+              <div class="stat-value" id="statTotalOwed">0</div>
+              <div class="stat-sub">across all records</div>
+            </div>
+            <div class="stat">
+              <div class="stat-label">Records</div>
+              <div class="stat-value" id="statCount">0</div>
+            </div>
+            <div class="stat">
+              <div class="stat-label">Fully paid</div>
+              <div class="stat-value" id="statPaid">0</div>
+            </div>
+            <div class="stat">
+              <div class="stat-label">Outstanding</div>
+              <div class="stat-value" id="statOutstanding">0</div>
+            </div>
+          </div>
+
+          <div class="panel-head"><h2>Who we owe</h2></div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Owed</th>
+                  <th>Paid</th>
+                  <th>Remaining</th>
+                  <th>Status</th>
+                  <th>Date</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="debtBody"></tbody>
+            </table>
+          </div>
+          <div id="emptyState" class="empty">
+            <strong>No records yet</strong>
+            Add your first record using the form.
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <div class="modal-backdrop" id="detailBackdrop">
+      <div class="modal">
+        <div class="modal-head">
+          <h2>Record details</h2>
+          <button class="modal-close" type="button" id="detailClose">&times;</button>
+        </div>
+        <div class="modal-body" id="detailBody"></div>
+        <div class="modal-footer">
+          <button class="button button-secondary" type="button" id="detailEditBtn">Edit</button>
+          <button class="button button-primary" type="button" id="detailOk">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-backdrop" id="editBackdrop">
+      <div class="modal">
+        <div class="modal-head">
+          <h2>Edit record</h2>
+          <button class="modal-close" type="button" id="editClose">&times;</button>
+        </div>
+        <form id="editForm">
+          <div class="modal-body">
+            <div class="field">
+              <label for="editName">Person / company</label>
+              <input id="editName" type="text" maxlength="150" required />
+            </div>
+            <div class="field">
+              <label for="editAmount">Total amount owed (Toman)</label>
+              <input id="editAmount" type="number" step="any" min="0" required />
+            </div>
+            <div class="field">
+              <label for="editPaid">Already paid (Toman)</label>
+              <input id="editPaid" type="number" step="any" min="0" required />
+            </div>
+            <div class="field">
+              <label for="editDate">Date</label>
+              <input id="editDate" type="date" required />
+            </div>
+            <div class="field">
+              <label for="editNotes">Description / notes</label>
+              <textarea id="editNotes" rows="3" maxlength="500"></textarea>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="button button-secondary" type="button" id="editCancel">Cancel</button>
+            <button class="button button-primary" type="submit">Save changes</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      const DEBTS_KEY = "shop-payables-v1";
+      const NOUN = "still owed";
+
+      const form = document.getElementById("debtForm");
+      const nameInput = document.getElementById("debtName");
+      const amountInput = document.getElementById("debtAmount");
+      const paidInput = document.getElementById("debtPaid");
+      const dateInput = document.getElementById("debtDate");
+      const notesInput = document.getElementById("debtNotes");
+      const body = document.getElementById("debtBody");
+      const emptyState = document.getElementById("emptyState");
+      const notice = document.getElementById("notice");
+
+      function load() {
+        try {
+          const parsed = JSON.parse(localStorage.getItem(DEBTS_KEY) || "[]");
+          return Array.isArray(parsed) ? parsed : [];
+        } catch (e) {
+          console.error("Could not load records", e);
+          return [];
+        }
+      }
+      function save(data) {
+        try {
+          localStorage.setItem(DEBTS_KEY, JSON.stringify(data));
+          return true;
+        } catch (e) {
+          console.error("Could not save records", e);
+          return false;
+        }
+      }
+
+      const fmt = (n) => Number(n || 0).toLocaleString("en-US", { maximumFractionDigits: 2 });
+      const newId = () => (crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`);
+
+      const TZ = "Asia/Tehran";
+      const faDateShort = (iso) =>
+        new Intl.DateTimeFormat("fa-IR-u-ca-persian-nu-latn", {
+          timeZone: TZ, year: "numeric", month: "2-digit", day: "2-digit",
+        }).format(new Date(iso));
+      const faDateTime = (iso) =>
+        new Intl.DateTimeFormat("fa-IR-u-ca-persian-nu-latn", {
+          timeZone: TZ, year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit",
+        }).format(new Date(iso));
+
+      function escapeHtml(value) {
+        return String(value)
+          .replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;").replaceAll("'", "&#039;");
+      }
+
+      function showNotice(message, type = "success") {
+        notice.textContent = message;
+        notice.className = `notice show ${type}`;
+        clearTimeout(showNotice.t);
+        showNotice.t = setTimeout(() => (notice.className = "notice"), 2500);
+      }
+
+      function remaining(rec) {
+        return Number(rec.amountOwed) - Number(rec.amountPaid);
+      }
+      function statusOf(rec) {
+        const rem = remaining(rec);
+        if (rem <= 0) return "paid";
+        if (Number(rec.amountPaid) > 0) return "partial";
+        return "unpaid";
+      }
+      const STATUS_LABEL = { paid: "Paid", partial: "Partially Paid", unpaid: "Unpaid" };
+      function statusBadge(rec) {
+        const status = statusOf(rec);
+        return `<span class="status-badge status-${status}">${STATUS_LABEL[status]}</span>`;
+      }
+
+      function renderStats(records) {
+        const totalOwed = records.reduce((s, r) => s + Math.max(0, remaining(r)), 0);
+        document.getElementById("statTotalOwed").textContent = `${fmt(totalOwed)} Toman`;
+        document.getElementById("statCount").textContent = records.length;
+        document.getElementById("statPaid").textContent = records.filter((r) => statusOf(r) === "paid").length;
+        document.getElementById("statOutstanding").textContent = records.filter((r) => statusOf(r) !== "paid").length;
+      }
+
+      function render() {
+        const records = load();
+        body.innerHTML = records
+          .map(
+            (r) => `
+          <tr>
+            <td>
+              <div class="name-cell" data-open="${r.id}">
+                <div class="person-name">${escapeHtml(r.name)}${r.history && r.history.length ? '<span class="tag tag-edited">Edited</span>' : ""}</div>
+                ${r.notes ? `<div class="person-notes">${escapeHtml(r.notes)}</div>` : ""}
+              </div>
+            </td>
+            <td class="num">${fmt(r.amountOwed)}</td>
+            <td class="num">${fmt(r.amountPaid)}</td>
+            <td class="num">${fmt(Math.max(0, remaining(r)))} Toman</td>
+            <td>${statusBadge(r)}</td>
+            <td>${faDateShort(r.date)}</td>
+            <td><div class="actions">
+              <button class="button button-secondary button-small" type="button" data-open="${r.id}">Details</button>
+              <button class="button button-danger button-small" type="button" data-id="${r.id}">Delete</button>
+            </div></td>
+          </tr>`,
+          )
+          .join("");
+        emptyState.style.display = records.length ? "none" : "block";
+        renderStats(records);
+      }
+
+      form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const name = nameInput.value.trim();
+        const amountOwed = Number(amountInput.value);
+        const amountPaid = Number(paidInput.value) || 0;
+        const dateVal = dateInput.value;
+        const notesVal = notesInput.value.trim();
+
+        if (!name) return showNotice("Enter a name.", "error");
+        if (!Number.isFinite(amountOwed) || amountOwed < 0) return showNotice("Enter a valid amount owed.", "error");
+        if (!Number.isFinite(amountPaid) || amountPaid < 0) return showNotice("Enter a valid paid amount.", "error");
+        if (!dateVal) return showNotice("Pick a date.", "error");
+
+        const records = load();
+        records.unshift({
+          id: newId(),
+          name, amountOwed, amountPaid,
+          date: new Date(dateVal + "T12:00:00").toISOString(),
+          notes: notesVal,
+          history: [],
+        });
+
+        if (!save(records)) return showNotice("Browser storage is full.", "error");
+
+        form.reset();
+        dateInput.value = new Date().toISOString().slice(0, 10);
+        paidInput.value = 0;
+        render();
+        showNotice(`Record added — ${fmt(amountOwed - amountPaid)} Toman ${NOUN}.`);
+        nameInput.focus();
+      });
+
+      body.addEventListener("click", (event) => {
+        const delBtn = event.target.closest("[data-id]");
+        if (delBtn) {
+          const records = load();
+          const rec = records.find((r) => r.id === delBtn.dataset.id);
+          if (!rec) return;
+          if (!confirm(`Delete the record for "${rec.name}"?`)) return;
+          save(records.filter((r) => r.id !== rec.id));
+          render();
+        }
+      });
+
+      // ---- Detail + Edit modals ----
+      let activeId = null;
+      const detailBackdrop = document.getElementById("detailBackdrop");
+      const detailBody = document.getElementById("detailBody");
+      const editBackdrop = document.getElementById("editBackdrop");
+      const editForm = document.getElementById("editForm");
+
+      function fieldLabel(field) {
+        return ({ name: "Name", amountOwed: "Amount owed", amountPaid: "Amount paid", notes: "Notes", date: "Date" }[field] || field);
+      }
+      function fieldDisplay(field, value) {
+        if (field === "amountOwed" || field === "amountPaid") return `${fmt(value)} Toman`;
+        if (field === "date") return faDateShort(value);
+        if (!value) return "(empty)";
+        return escapeHtml(value);
+      }
+
+      function renderDetail(rec) {
+        const history = rec.history || [];
+        let html = `
+          <div class="detail-row"><span class="k">Name</span><span class="v">${escapeHtml(rec.name)}</span></div>
+          <div class="detail-row"><span class="k">Amount owed</span><span class="v">${fmt(rec.amountOwed)} Toman</span></div>
+          <div class="detail-row"><span class="k">Amount paid</span><span class="v">${fmt(rec.amountPaid)} Toman</span></div>
+          <div class="detail-row"><span class="k">Remaining</span><span class="v">${fmt(Math.max(0, remaining(rec)))} Toman</span></div>
+          <div class="detail-row"><span class="k">Status</span><span class="v">${STATUS_LABEL[statusOf(rec)]}</span></div>
+          <div class="detail-row"><span class="k">Date</span><span class="v">${faDateShort(rec.date)}</span></div>
+          <div class="detail-row"><span class="k">Notes</span><span class="v">${rec.notes ? escapeHtml(rec.notes) : "(none)"}</span></div>
+        `;
+        if (history.length) {
+          html += `<div class="history-log"><h3>Edit history (${history.length})</h3>`;
+          for (const entry of [...history].reverse()) {
+            html += `<div class="history-entry"><div class="when">Edited ${faDateTime(entry.at)}</div>`;
+            for (const field of Object.keys(entry.changes)) {
+              const c = entry.changes[field];
+              html += `<div class="history-change"><span class="field">${fieldLabel(field)}:</span> <span class="before">${fieldDisplay(field, c.before)}</span> → <span class="after">${fieldDisplay(field, c.after)}</span></div>`;
+            }
+            html += `</div>`;
+          }
+          html += `</div>`;
+        } else {
+          html += `<div class="history-log"><h3>Edit history</h3><p class="hint">No edits yet.</p></div>`;
+        }
+        detailBody.innerHTML = html;
+      }
+
+      function openDetail(id) {
+        const rec = load().find((r) => r.id === id);
+        if (!rec) return;
+        activeId = id;
+        renderDetail(rec);
+        detailBackdrop.classList.add("show");
+      }
+      function closeDetail() { detailBackdrop.classList.remove("show"); }
+
+      function openEdit(id) {
+        const rec = load().find((r) => r.id === id);
+        if (!rec) return;
+        activeId = id;
+        document.getElementById("editName").value = rec.name;
+        document.getElementById("editAmount").value = rec.amountOwed;
+        document.getElementById("editPaid").value = rec.amountPaid;
+        document.getElementById("editDate").value = rec.date.slice(0, 10);
+        document.getElementById("editNotes").value = rec.notes || "";
+        closeDetail();
+        editBackdrop.classList.add("show");
+      }
+      function closeEdit() { editBackdrop.classList.remove("show"); }
+
+      body.addEventListener("click", (event) => {
+        const opener = event.target.closest("[data-open]");
+        if (!opener) return;
+        openDetail(opener.dataset.open);
+      });
+
+      document.getElementById("detailClose").addEventListener("click", closeDetail);
+      document.getElementById("detailOk").addEventListener("click", closeDetail);
+      detailBackdrop.addEventListener("click", (event) => { if (event.target === detailBackdrop) closeDetail(); });
+      document.getElementById("detailEditBtn").addEventListener("click", () => openEdit(activeId));
+
+      document.getElementById("editClose").addEventListener("click", closeEdit);
+      document.getElementById("editCancel").addEventListener("click", closeEdit);
+      editBackdrop.addEventListener("click", (event) => { if (event.target === editBackdrop) closeEdit(); });
+
+      editForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const records = load();
+        const rec = records.find((r) => r.id === activeId);
+        if (!rec) return closeEdit();
+
+        const newName = document.getElementById("editName").value.trim();
+        const newAmount = Number(document.getElementById("editAmount").value);
+        const newPaid = Number(document.getElementById("editPaid").value);
+        const newDateVal = document.getElementById("editDate").value;
+        const newNotes = document.getElementById("editNotes").value.trim();
+
+        if (!newName) return showNotice("Enter a name.", "error");
+        if (!Number.isFinite(newAmount) || newAmount < 0) return showNotice("Enter a valid amount owed.", "error");
+        if (!Number.isFinite(newPaid) || newPaid < 0) return showNotice("Enter a valid paid amount.", "error");
+        if (!newDateVal) return showNotice("Pick a date.", "error");
+
+        const newDateIso = new Date(newDateVal + "T12:00:00").toISOString();
+        const changes = {};
+        if (newName !== rec.name) changes.name = { before: rec.name, after: newName };
+        if (newAmount !== Number(rec.amountOwed)) changes.amountOwed = { before: rec.amountOwed, after: newAmount };
+        if (newPaid !== Number(rec.amountPaid)) changes.amountPaid = { before: rec.amountPaid, after: newPaid };
+        if (newDateIso.slice(0, 10) !== rec.date.slice(0, 10)) changes.date = { before: rec.date, after: newDateIso };
+        if (newNotes !== (rec.notes || "")) changes.notes = { before: rec.notes || "", after: newNotes };
+
+        if (Object.keys(changes).length === 0) { closeEdit(); return; }
+
+        rec.name = newName;
+        rec.amountOwed = newAmount;
+        rec.amountPaid = newPaid;
+        rec.date = newDateIso;
+        rec.notes = newNotes;
+        rec.history = rec.history || [];
+        rec.history.push({ at: new Date().toISOString(), changes });
+
+        if (!save(records)) return showNotice("Browser storage is full.", "error");
+        closeEdit();
+        render();
+        showNotice("Record updated.");
+      });
+
+      window.addEventListener("storage", render);
+
+      dateInput.value = new Date().toISOString().slice(0, 10);
+      render();
+    </script>
+  </body>
+</html>

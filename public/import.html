@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Import old data</title>
+    <style>
+      body { font-family: system-ui, sans-serif; max-width: 640px; margin: 40px auto; padding: 0 16px; }
+      pre { background: #f3f4f6; padding: 12px; border-radius: 8px; white-space: pre-wrap; }
+    </style>
+  </head>
+  <body>
+    <h1>Import old data</h1>
+    <p>
+      Choose the JSON file you dumped from the old localhost site. Every known key in it
+      <strong>replaces</strong> what is stored now. Do this once.
+    </p>
+    <input type="file" id="f" accept=".json,application/json" />
+    <pre id="out"></pre>
+    <script>
+      const out = document.getElementById("out");
+      document.getElementById("f").addEventListener("change", async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        let obj;
+        try {
+          obj = JSON.parse(await file.text());
+        } catch (err) {
+          out.textContent = "That file is not valid JSON.";
+          return;
+        }
+        const found = Object.keys(obj).filter((k) => SHOP_KEYS.includes(k));
+        if (!found.length) {
+          out.textContent = 'No known keys found. Expected an object like {"inventory-manager-products-v1": ...}.';
+          return;
+        }
+        if (!confirm("Replace stored data for:\n" + found.join("\n"))) return;
+        for (const k of found) {
+          const v = typeof obj[k] === "string" ? obj[k] : JSON.stringify(obj[k]);
+          localStorage.setItem(k, v);
+        }
+        out.textContent = "Imported:\n" + found.join("\n") + "\n\nOpen the Inventory page to check.";
+      });
+    </script>
+  </body>
+</html>

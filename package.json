@@ -1,0 +1,10 @@
+{
+  "name": "shop-app",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Shop manager: HTML pages + Node server + SQLite file",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": { "node": ">=22.13" }
+}

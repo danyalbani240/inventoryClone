@@ -1,0 +1,3434 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <link rel="stylesheet" href="index.css" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sales Log</title>
+    <style>
+      :root {
+        --bg: #f5f7fb;
+        --card: #ffffff;
+        --text: #18202a;
+        --muted: #6b7280;
+        --border: #e5e7eb;
+        --primary: #2563eb;
+        --primary-hover: #1d4ed8;
+        --danger: #dc2626;
+        --success: #059669;
+        --shadow: 0 10px 30px rgba(15, 23, 42, 0.07);
+        --radius: 16px;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family:
+          Inter,
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
+        background: var(--bg);
+        color: var(--text);
+      }
+      .container {
+        width: min(1175px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 32px 0 48px;
+      }
+      header {
+        margin-bottom: 24px;
+      }
+      h1 {
+        margin: 0 0 6px;
+        font-size: clamp(28px, 5vw, 40px);
+        letter-spacing: -0.03em;
+      }
+      .subtitle {
+        margin: 0;
+        color: var(--muted);
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: 330px 1fr;
+        gap: 20px;
+        align-items: start;
+      }
+      .card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+      }
+      .form-card {
+        padding: 20px;
+        position: sticky;
+        top: 20px;
+      }
+      h2 {
+        margin: 0 0 16px;
+        font-size: 18px;
+      }
+      .field {
+        margin-bottom: 14px;
+      }
+      label {
+        display: block;
+        margin-bottom: 7px;
+        font-size: 14px;
+        font-weight: 600;
+      }
+      input,
+      button {
+        font: inherit;
+      }
+      input[type="text"],
+      input[type="number"] {
+        width: 100%;
+        border: 1px solid #d1d5db;
+        border-radius: 10px;
+        padding: 11px 12px;
+        background: #fff;
+        color: var(--text);
+        outline: none;
+        transition:
+          border-color 0.15s ease,
+          box-shadow 0.15s ease;
+      }
+      input:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+      }
+      .hint {
+        margin: 6px 0 0;
+        font-size: 12px;
+        color: var(--muted);
+        min-height: 16px;
+      }
+      .hint.match {
+        color: var(--success);
+        font-weight: 600;
+      }
+      .button {
+        border: 0;
+        border-radius: 10px;
+        padding: 11px 14px;
+        cursor: pointer;
+        font-weight: 700;
+        transition: 0.15s ease;
+      }
+      .button-primary {
+        width: 100%;
+        background: var(--primary);
+        color: white;
+      }
+      .button-primary:hover {
+        background: var(--primary-hover);
+      }
+      .button-secondary {
+        background: #eef2ff;
+        color: #3730a3;
+      }
+      .button-secondary:hover {
+        background: #e0e7ff;
+      }
+      .button-danger {
+        background: #fee2e2;
+        color: var(--danger);
+      }
+      .button-danger:hover {
+        background: #fecaca;
+      }
+      .button-small {
+        padding: 8px 10px;
+        font-size: 13px;
+      }
+      .inventory-card {
+        overflow: hidden;
+      }
+
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 12px;
+        padding: 16px 20px;
+        border-bottom: 1px solid var(--border);
+      }
+      .stat {
+        padding: 14px;
+        background: #f8fafc;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+      }
+      .stat.sold {
+        background: #eff6ff;
+        border-color: #bfdbfe;
+      }
+      .stat-label {
+        color: var(--muted);
+        font-size: 12px;
+        margin-bottom: 5px;
+      }
+      .stat-value {
+        font-size: 19px;
+        font-weight: 800;
+        overflow-wrap: anywhere;
+      }
+      .stat-sub {
+        margin-top: 3px;
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .table-wrap {
+        overflow-x: auto;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 720px;
+      }
+      th,
+      td {
+        padding: 14px 16px;
+        text-align: left;
+        border-bottom: 1px solid var(--border);
+        vertical-align: middle;
+      }
+      th {
+        background: #fafafa;
+        font-size: 13px;
+        color: var(--muted);
+        font-weight: 700;
+        white-space: nowrap;
+      }
+      tbody tr:last-child td {
+        border-bottom: 0;
+      }
+      .product-name {
+        font-weight: 700;
+      }
+      .num {
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
+        font-weight: 800;
+      }
+      .pos {
+        color: var(--success);
+      }
+      .neg {
+        color: var(--danger);
+      }
+      .tag {
+        display: inline-block;
+        padding: 4px 9px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 700;
+      }
+      .tag-stock {
+        background: #dcfce7;
+        color: #166534;
+      }
+      .tag-free {
+        background: #f3f4f6;
+        color: #4b5563;
+      }
+      .tag-edited {
+        background: #fef3c7;
+        color: #92400e;
+        margin-left: 8px;
+      }
+      .tag-now {
+        background: #dbeafe;
+        color: #1e40af;
+        margin-left: 8px;
+      }
+      .actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 6px;
+      }
+      .empty {
+        padding: 44px 20px;
+        text-align: center;
+        color: var(--muted);
+      }
+      .empty strong {
+        display: block;
+        color: var(--text);
+        margin-bottom: 5px;
+        font-size: 17px;
+      }
+      .notice {
+        display: none;
+        margin-top: 12px;
+        padding: 10px 12px;
+        border-radius: 10px;
+        font-size: 13px;
+      }
+      .notice.show {
+        display: block;
+      }
+      .notice.error {
+        background: #fee2e2;
+        color: #991b1b;
+      }
+      .notice.success {
+        background: #dcfce7;
+        color: #166534;
+      }
+      input[type="file"] {
+        width: 100%;
+        font-size: 13px;
+      }
+      textarea {
+        width: 100%;
+        border: 1px solid #d1d5db;
+        border-radius: 10px;
+        padding: 11px 12px;
+        font: inherit;
+        color: var(--text);
+        resize: vertical;
+        outline: none;
+        transition:
+          border-color 0.15s ease,
+          box-shadow 0.15s ease;
+      }
+      textarea:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+      }
+
+      .panel-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 16px 20px;
+        border-bottom: 1px solid var(--border);
+      }
+      .panel-head h2 {
+        margin: 0;
+      }
+      .toggle {
+        display: inline-flex;
+        background: #eef2ff;
+        border-radius: 10px;
+        padding: 3px;
+      }
+      .toggle button {
+        border: 0;
+        background: transparent;
+        border-radius: 8px;
+        padding: 7px 12px;
+        font-size: 13px;
+        font-weight: 700;
+        color: #3730a3;
+        cursor: pointer;
+      }
+      .toggle button.on {
+        background: var(--primary);
+        color: #fff;
+      }
+      .history-wrap {
+        max-height: 300px;
+        overflow: auto;
+        border-bottom: 1px solid var(--border);
+      }
+      .history-wrap table {
+        min-width: 0;
+      }
+
+      .item-cell {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        cursor: pointer;
+      }
+      .thumb {
+        width: 44px;
+        height: 44px;
+        flex: none;
+        border-radius: 8px;
+        object-fit: cover;
+        border: 1px solid var(--border);
+        cursor: zoom-in;
+      }
+      .item-details {
+        margin-top: 3px;
+        max-width: 340px;
+        font-size: 13px;
+        color: var(--muted);
+        white-space: pre-wrap;
+      }
+      .photo-preview {
+        display: none;
+        position: relative;
+        width: fit-content;
+        margin-top: 10px;
+      }
+      .photo-preview.show {
+        display: block;
+      }
+      .photo-preview img {
+        display: block;
+        max-width: 100%;
+        max-height: 160px;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+      }
+      .photo-preview button {
+        position: absolute;
+        top: 6px;
+        right: 6px;
+      }
+
+      .picker {
+        position: relative;
+      }
+      .picker-list {
+        display: none;
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: calc(100% + 4px);
+        z-index: 5;
+        max-height: 260px;
+        overflow-y: auto;
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        box-shadow: var(--shadow);
+      }
+      .picker-list.show {
+        display: block;
+      }
+      .picker-item {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 10px 12px;
+        cursor: pointer;
+        font-size: 14px;
+      }
+      .picker-item:hover {
+        background: #f3f4f6;
+      }
+      .picker-item small {
+        color: var(--muted);
+        white-space: nowrap;
+      }
+      .picker-empty {
+        padding: 10px 12px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .lightbox {
+        position: fixed;
+        inset: 0;
+        z-index: 10;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        background: rgba(15, 23, 42, 0.8);
+        cursor: zoom-out;
+      }
+      .lightbox.show {
+        display: flex;
+      }
+      .lightbox img {
+        max-width: 100%;
+        max-height: 100%;
+        border-radius: 12px;
+      }
+      .modal-backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 20;
+        display: none;
+        align-items: flex-start;
+        justify-content: center;
+        padding: 40px 16px;
+        background: rgba(15, 23, 42, 0.55);
+        overflow-y: auto;
+      }
+      .modal-backdrop.show {
+        display: flex;
+      }
+      .modal {
+        background: #fff;
+        border-radius: var(--radius);
+        width: min(560px, 100%);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+      }
+      .modal-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px 20px;
+        border-bottom: 1px solid var(--border);
+      }
+      .modal-head h2 {
+        margin: 0;
+      }
+      .modal-close {
+        border: 0;
+        background: transparent;
+        font-size: 20px;
+        line-height: 1;
+        cursor: pointer;
+        color: var(--muted);
+        padding: 4px;
+      }
+      .modal-body {
+        padding: 20px;
+        max-height: 70vh;
+        overflow-y: auto;
+      }
+      .modal-footer {
+        padding: 16px 20px;
+        border-top: 1px solid var(--border);
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+      }
+      .detail-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 9px 0;
+        border-bottom: 1px solid var(--border);
+        font-size: 14px;
+      }
+      .detail-row:last-child {
+        border-bottom: 0;
+      }
+      .detail-row .k {
+        color: var(--muted);
+        flex: none;
+      }
+      .detail-row .v {
+        text-align: right;
+        font-weight: 600;
+        white-space: pre-wrap;
+      }
+      .history-log h3 {
+        margin: 18px 0 10px;
+        font-size: 14px;
+      }
+      .history-entry {
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 10px 12px;
+        margin-bottom: 8px;
+        font-size: 13px;
+      }
+      .history-entry .when {
+        color: var(--muted);
+        font-size: 12px;
+        margin-bottom: 6px;
+      }
+      .history-change {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        margin-top: 3px;
+      }
+      .history-change .field {
+        font-weight: 700;
+        margin: 0;
+      }
+      .history-change .before {
+        color: var(--danger);
+        text-decoration: line-through;
+      }
+      .history-change .after {
+        color: var(--success);
+      }
+
+      .tag-inv {
+        background: #ede9fe;
+        color: #5b21b6;
+        margin-left: 8px;
+      }
+      select.select {
+        width: 100%;
+        border: 1px solid #d1d5db;
+        border-radius: 10px;
+        padding: 11px 12px;
+        background: #fff;
+        color: var(--text);
+        font: inherit;
+        outline: none;
+      }
+      select.select:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+      }
+      .modal.wide {
+        width: min(940px, 100%);
+      }
+      .row-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+      .line-table,
+      .inv-table {
+        min-width: 0;
+      }
+      .line-table th,
+      .line-table td {
+        padding: 6px 6px;
+        border-bottom: 0;
+      }
+      .line-table input {
+        padding: 9px 10px;
+      }
+      .line-table .l-qty {
+        width: 72px;
+      }
+      .line-table .l-buy,
+      .line-table .l-sold {
+        width: 130px;
+      }
+      .sum-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        margin-top: 14px;
+      }
+      .inv-head {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 16px;
+      }
+      .inv-head h2 {
+        margin: 0 0 4px;
+        font-size: 26px;
+      }
+      .inv-table th,
+      .inv-table td {
+        padding: 10px 10px;
+      }
+      .inv-table tfoot td {
+        font-weight: 800;
+        border-bottom: 0;
+      }
+      .check {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        margin: 0;
+        font-weight: 600;
+      }
+      .check input {
+        width: auto;
+      }
+      @media print {
+        body > *:not(#invoiceBackdrop) {
+          display: none !important;
+        }
+        #invoiceBackdrop {
+          position: static;
+          display: block !important;
+          padding: 0;
+          background: none;
+          overflow: visible;
+        }
+        #invoiceBackdrop .modal {
+          box-shadow: none;
+          width: 100%;
+          border-radius: 0;
+        }
+        #invoiceBackdrop .modal-body {
+          max-height: none;
+          overflow: visible;
+        }
+        .no-print {
+          display: none !important;
+        }
+      }
+      @media (max-width: 820px) {
+        .grid {
+          grid-template-columns: 1fr;
+        }
+        .form-card {
+          position: static;
+        }
+      }
+      .modal-backdrop.top {
+        z-index: 30;
+      }
+      .modal.mid {
+        width: min(720px, 100%);
+      }
+      .tag-inst {
+        background: #e0e7ff;
+        color: #3730a3;
+        margin-left: 8px;
+      }
+      .hint.bad {
+        color: var(--danger);
+        font-weight: 600;
+      }
+      input.invalid {
+        border-color: var(--danger) !important;
+      }
+      .pay-box {
+        margin-top: 16px;
+        padding-top: 14px;
+        border-top: 1px dashed var(--border);
+      }
+      .plan-summary {
+        margin-top: 10px;
+        padding: 14px;
+        border: 1px solid #c7d2fe;
+        background: #eef2ff;
+        border-radius: 12px;
+      }
+      .plan-summary.stale {
+        border-color: #fecaca;
+        background: #fef2f2;
+      }
+      .plan-summary-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        margin-bottom: 10px;
+      }
+      .plan-summary-grid .k {
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .plan-summary-grid .v {
+        font-weight: 800;
+      }
+      .chips {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        margin-top: 8px;
+      }
+      .chip {
+        border: 1px solid #c7d2fe;
+        background: #fff;
+        color: #3730a3;
+        border-radius: 999px;
+        padding: 5px 11px;
+        font-size: 12px;
+        font-weight: 700;
+        cursor: pointer;
+      }
+      .chip:hover {
+        background: #eef2ff;
+      }
+      .plan-table {
+        min-width: 0;
+      }
+      .plan-table th,
+      .plan-table td {
+        padding: 8px 8px;
+        font-size: 13px;
+      }
+      .plan-table input {
+        padding: 8px 9px;
+        font-size: 13px;
+      }
+      @media (max-width: 820px) {
+        .plan-summary-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+      .form-card .plan-summary-grid {
+        grid-template-columns: 1fr;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="container">
+      <nav class="nav">
+        <a href="index.html">Inventory</a>
+        <a href="sales.html" class="active">Sales Log</a>
+        <a href="expenses.html">Expenses</a>
+        <a href="receivables.html">Receivables</a>
+        <a href="payables.html">Payables</a>
+        <a href="todo.html">Todo</a>
+        <a href="contacts.html">Contacts</a>
+      </nav>
+
+      <header>
+        <h1>Sales Log</h1>
+        <p class="subtitle">
+          Pick an inventory item or type any name. If the name matches an
+          inventory product, its stock goes down by one and the price is filled
+          in from the inventory at today's dollar rate.
+        </p>
+      </header>
+
+      <section class="grid">
+        <aside class="card form-card">
+          <h2>Record Sale</h2>
+          <form id="saleForm" autocomplete="off">
+            <div class="field">
+              <label for="saleItem">Item</label>
+              <div class="picker">
+                <input
+                  id="saleItem"
+                  type="text"
+                  placeholder="Pick or type a name"
+                  maxlength="100"
+                  required
+                />
+                <div class="picker-list" id="pickerList"></div>
+              </div>
+              <p class="hint" id="matchHint"></p>
+            </div>
+            <div class="field">
+              <label for="saleSold">Sold for (Toman)</label>
+              <input
+                id="saleSold"
+                type="number"
+                step="any"
+                placeholder="e.g. 36000000"
+                required
+              />
+            </div>
+            <div class="field">
+              <label for="saleBenefit">Benefit (Toman)</label>
+              <input
+                id="saleBenefit"
+                type="number"
+                step="any"
+                placeholder="e.g. 250000"
+                required
+              />
+              <p class="hint" id="benefitHint"></p>
+            </div>
+            <div class="field">
+              <label>Payment</label>
+              <div class="toggle" id="sPayToggle">
+                <button type="button" data-pay="full" class="on">
+                  Paid in full
+                </button>
+                <button type="button" data-pay="installments">
+                  Installments
+                </button>
+              </div>
+              <div
+                id="sPlanSummary"
+                class="plan-summary"
+                style="display: none"
+              ></div>
+            </div>
+            <div class="field" id="sCustomerField" style="display: none">
+              <label for="sCustomer">Customer</label>
+              <div class="picker">
+                <input
+                  id="sCustomer"
+                  type="text"
+                  placeholder="Pick a contact or type a name"
+                  maxlength="100"
+                  autocomplete="off"
+                />
+                <div class="picker-list" id="sCustomerList"></div>
+              </div>
+            </div>
+            <div class="field">
+              <label for="saleDetails">Details (optional)</label>
+              <textarea
+                id="saleDetails"
+                rows="3"
+                maxlength="500"
+                placeholder="Customer, notes, serial number..."
+              ></textarea>
+            </div>
+            <div class="field">
+              <label for="salePhoto">Photo (optional)</label>
+              <input id="salePhoto" type="file" accept="image/*" />
+              <p class="hint">
+                Photos are resized and stored in your browser. You can also
+                paste an image into Details.
+              </p>
+              <div class="photo-preview" id="photoPreview">
+                <img id="photoImg" alt="Selected photo" />
+                <button
+                  class="button button-danger button-small"
+                  type="button"
+                  id="photoRemove"
+                >
+                  Remove
+                </button>
+              </div>
+            </div>
+            <button class="button button-primary" type="submit">
+              Record Sale
+            </button>
+            <div id="notice" class="notice"></div>
+          </form>
+        </aside>
+
+        <section class="card inventory-card">
+          <div class="stats">
+            <div class="stat sold">
+              <div class="stat-label">Total sold (all time)</div>
+              <div class="stat-value" id="soldTotal">0</div>
+              <div class="stat-sub" id="soldTotalSub">0 sales</div>
+            </div>
+            <div class="stat">
+              <div class="stat-label">Benefit today</div>
+              <div class="stat-value" id="benefitToday">0</div>
+              <div class="stat-sub" id="salesToday">0 sales</div>
+            </div>
+            <div class="stat">
+              <div class="stat-label">Benefit this week</div>
+              <div class="stat-value" id="benefitWeek">0</div>
+              <div class="stat-sub" id="salesWeek">0 sales</div>
+            </div>
+            <div class="stat">
+              <div class="stat-label">Benefit this month</div>
+              <div class="stat-value" id="benefitMonth">0</div>
+              <div class="stat-sub" id="salesMonth">0 sales</div>
+            </div>
+            <div class="stat">
+              <div class="stat-label">Benefit all time</div>
+              <div class="stat-value" id="benefitTotal">0</div>
+              <div class="stat-sub" id="salesTotal">0 sales</div>
+            </div>
+          </div>
+          <div class="stats">
+            <div class="stat">
+              <div class="stat-label">Net profit today</div>
+              <div class="stat-value" id="netToday">0</div>
+              <div class="stat-sub" id="netTodaySub"></div>
+            </div>
+            <div class="stat">
+              <div class="stat-label">Net profit this week</div>
+              <div class="stat-value" id="netWeek">0</div>
+              <div class="stat-sub" id="netWeekSub"></div>
+            </div>
+            <div class="stat">
+              <div class="stat-label">Net profit this month</div>
+              <div class="stat-value" id="netMonth">0</div>
+              <div class="stat-sub" id="netMonthSub"></div>
+            </div>
+            <div class="stat">
+              <div class="stat-label">Net profit all time</div>
+              <div class="stat-value" id="netTotal">0</div>
+              <div class="stat-sub" id="netTotalSub"></div>
+            </div>
+          </div>
+
+          <div class="panel-head">
+            <h2>Sales history</h2>
+            <div class="toggle" id="viewToggle">
+              <button type="button" data-view="week" class="on">Weekly</button>
+              <button type="button" data-view="month">Monthly</button>
+            </div>
+          </div>
+          <div class="history-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th id="historyPeriodHead">Week</th>
+                  <th>Sales</th>
+                  <th>Sold</th>
+                  <th>Benefit</th>
+                </tr>
+              </thead>
+              <tbody id="historyBody"></tbody>
+            </table>
+          </div>
+
+          <div class="panel-head">
+            <h2>Invoices (group sales)</h2>
+            <button
+              class="button button-primary button-small"
+              type="button"
+              id="newInvoiceBtn"
+              style="width: auto"
+            >
+              + New group sale
+            </button>
+          </div>
+          <div class="history-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>No.</th>
+                  <th>Date</th>
+                  <th>Customer</th>
+                  <th>Items</th>
+                  <th>Sold</th>
+                  <th>Benefit</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="invoiceBody"></tbody>
+            </table>
+          </div>
+
+          <div class="panel-head"><h2>Sales</h2></div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Item</th>
+                  <th>Sold</th>
+                  <th>Benefit</th>
+                  <th>Stock</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="salesBody"></tbody>
+            </table>
+          </div>
+          <div id="emptyState" class="empty">
+            <strong>No sales yet</strong>
+            Record your first sale using the form.
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <div class="modal-backdrop" id="detailBackdrop">
+      <div class="modal">
+        <div class="modal-head">
+          <h2>Sale details</h2>
+          <button class="modal-close" type="button" id="detailClose">
+            &times;
+          </button>
+        </div>
+        <div class="modal-body" id="detailBody"></div>
+        <div class="modal-footer">
+          <button
+            class="button button-secondary"
+            type="button"
+            id="detailEditBtn"
+          >
+            Edit
+          </button>
+          <button class="button button-primary" type="button" id="detailOk">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-backdrop" id="editBackdrop">
+      <div class="modal">
+        <div class="modal-head">
+          <h2>Edit sale</h2>
+          <button class="modal-close" type="button" id="editClose">
+            &times;
+          </button>
+        </div>
+        <form id="editForm">
+          <div class="modal-body">
+            <div class="field">
+              <label for="editItem">Item</label>
+              <input id="editItem" type="text" maxlength="100" required />
+            </div>
+            <div class="field">
+              <label for="editSold">Sold for (Toman)</label>
+              <input id="editSold" type="number" step="any" required />
+            </div>
+            <div class="field">
+              <label for="editBenefit">Benefit (Toman)</label>
+              <input id="editBenefit" type="number" step="any" required />
+            </div>
+            <div class="field">
+              <label for="editDetails">Details</label>
+              <textarea id="editDetails" rows="3" maxlength="500"></textarea>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button
+              class="button button-secondary"
+              type="button"
+              id="editCancel"
+            >
+              Cancel
+            </button>
+            <button class="button button-primary" type="submit">
+              Save changes
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="modal-backdrop" id="groupBackdrop">
+      <div class="modal wide">
+        <div class="modal-head">
+          <h2>New group sale (invoice)</h2>
+          <button class="modal-close" type="button" id="groupClose">
+            &times;
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="row-2">
+            <div class="field">
+              <label for="gCustomer">Customer</label>
+              <div class="picker">
+                <input
+                  id="gCustomer"
+                  type="text"
+                  placeholder="Pick a contact or type a name"
+                  maxlength="100"
+                  autocomplete="off"
+                />
+                <div class="picker-list" id="gCustomerList"></div>
+              </div>
+            </div>
+            <div class="field">
+              <label for="gPhone">Phone (optional)</label>
+              <input
+                id="gPhone"
+                type="text"
+                maxlength="40"
+                autocomplete="off"
+              />
+            </div>
+          </div>
+          <div class="field">
+            <label for="gPriceList">Price list</label>
+            <select id="gPriceList" class="select">
+              <option value="customer">Customer price</option>
+              <option value="partner">Partner price</option>
+            </select>
+          </div>
+
+          <table class="line-table">
+            <thead>
+              <tr>
+                <th>Item</th>
+                <th>Qty</th>
+                <th>Purchase (each)</th>
+                <th>Sold (each)</th>
+                <th>Benefit</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="gLines"></tbody>
+          </table>
+          <button
+            class="button button-secondary button-small"
+            type="button"
+            id="gAddLine"
+            style="margin-top: 10px"
+          >
+            + Add item
+          </button>
+
+          <div class="sum-grid">
+            <div class="stat">
+              <div class="stat-label">Total purchase</div>
+              <div class="stat-value" id="gTotBuy">0</div>
+            </div>
+            <div class="stat sold">
+              <div class="stat-label">Total sold</div>
+              <div class="stat-value" id="gTotSold">0</div>
+            </div>
+            <div class="stat">
+              <div class="stat-label">Total benefit</div>
+              <div class="stat-value" id="gTotBenefit">0</div>
+            </div>
+          </div>
+          <div class="pay-box">
+            <label>Payment</label>
+            <div class="toggle" id="gPayToggle">
+              <button type="button" data-pay="full" class="on">
+                Paid in full
+              </button>
+              <button type="button" data-pay="installments">
+                Installments
+              </button>
+            </div>
+            <div
+              id="gPlanSummary"
+              class="plan-summary"
+              style="display: none"
+            ></div>
+          </div>
+          <div id="gNotice" class="notice"></div>
+        </div>
+        <div class="modal-footer">
+          <button
+            class="button button-secondary"
+            type="button"
+            id="groupCancel"
+          >
+            Cancel
+          </button>
+          <button
+            class="button button-primary"
+            type="button"
+            id="groupSave"
+            style="width: auto"
+          >
+            Record &amp; generate invoice
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-backdrop" id="invoiceBackdrop">
+      <div class="modal wide">
+        <div class="modal-head no-print">
+          <h2>Invoice</h2>
+          <button class="modal-close" type="button" id="invClose">
+            &times;
+          </button>
+        </div>
+        <div class="modal-body" id="invBody"></div>
+        <div class="modal-footer no-print">
+          <label class="check" style="margin-right: auto">
+            <input type="checkbox" id="invInternal" />
+            Internal copy (show purchase price &amp; benefit)
+          </label>
+          <button class="button button-secondary" type="button" id="invPrint">
+            Print / Save PDF
+          </button>
+          <button
+            class="button button-primary"
+            type="button"
+            id="invOk"
+            style="width: auto"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-backdrop top" id="planBackdrop">
+      <div class="modal mid">
+        <div class="modal-head">
+          <h2>Installment plan</h2>
+          <button class="modal-close" type="button" id="planClose">
+            &times;
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="sum-grid">
+            <div class="stat sold">
+              <div class="stat-label">Sale total</div>
+              <div class="stat-value" id="pTotal">0</div>
+            </div>
+            <div class="stat">
+              <div class="stat-label">Down payment (today)</div>
+              <div class="stat-value" id="pDownTile">0</div>
+            </div>
+            <div class="stat">
+              <div class="stat-label">In installments</div>
+              <div class="stat-value" id="pInstTile">0</div>
+            </div>
+          </div>
+
+          <div class="row-2" style="margin-top: 16px">
+            <div class="field">
+              <label for="pDown">Down payment (Toman)</label>
+              <input id="pDown" type="number" min="0" step="any" value="0" />
+              <div class="chips" id="pChips">
+                <button type="button" class="chip" data-pct="0">None</button>
+                <button type="button" class="chip" data-pct="10">10%</button>
+                <button type="button" class="chip" data-pct="20">20%</button>
+                <button type="button" class="chip" data-pct="30">30%</button>
+                <button type="button" class="chip" data-pct="50">50%</button>
+              </div>
+            </div>
+            <div class="field">
+              <label for="pCount">Number of installments</label>
+              <input
+                id="pCount"
+                type="number"
+                min="1"
+                max="60"
+                step="1"
+                value="3"
+              />
+              <div class="chips" id="pCountChips">
+                <button type="button" class="chip" data-n="2">2</button>
+                <button type="button" class="chip" data-n="3">3</button>
+                <button type="button" class="chip" data-n="4">4</button>
+                <button type="button" class="chip" data-n="6">6</button>
+                <button type="button" class="chip" data-n="12">12</button>
+              </div>
+            </div>
+          </div>
+          <div class="row-2">
+            <div class="field">
+              <label for="pEvery">Every</label>
+              <select id="pEvery" class="select">
+                <option value="m1">1 month</option>
+                <option value="m2">2 months</option>
+                <option value="m3">3 months</option>
+                <option value="d7">1 week</option>
+                <option value="d14">2 weeks</option>
+                <option value="d15">15 days</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="pFirst">First installment due (Solar Hijri)</label>
+              <input
+                id="pFirst"
+                type="text"
+                inputmode="numeric"
+                placeholder="1405/08/01"
+                maxlength="10"
+                autocomplete="off"
+              />
+              <p class="hint" id="pFirstHint"></p>
+            </div>
+          </div>
+
+          <h3 style="margin: 8px 0 8px; font-size: 14px">Schedule</h3>
+          <div class="table-wrap">
+            <table class="plan-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Due date</th>
+                  <th>Amount (Toman)</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="pRows"></tbody>
+            </table>
+          </div>
+          <div
+            style="display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap"
+          >
+            <button
+              class="button button-secondary button-small"
+              type="button"
+              id="pAddRow"
+            >
+              + Add installment
+            </button>
+            <button
+              class="button button-secondary button-small"
+              type="button"
+              id="pResplit"
+              style="display: none"
+            >
+              Reset to even split
+            </button>
+          </div>
+          <p class="hint" id="pSumHint"></p>
+          <div id="pNotice" class="notice"></div>
+        </div>
+        <div class="modal-footer">
+          <button class="button button-secondary" type="button" id="planCancel">
+            Cancel
+          </button>
+          <button
+            class="button button-primary"
+            type="button"
+            id="planSave"
+            style="width: auto"
+          >
+            Save plan
+          </button>
+        </div>
+      </div>
+    </div>
+    <script>
+      // Same keys as the inventory page, so both pages share the same data.
+      const CONTACTS_KEY = "contacts-manager-v1"; // written by the contacts page
+      const INVOICES_KEY = "inventory-invoices-v1";
+      const INVENTORY_KEY = "inventory-manager-products-v1";
+      const RATE_KEY = "inventory-usd-rate-v1"; // written by the inventory page
+      const SALES_KEY = "inventory-sales-log-v1";
+      const EXPENSES_KEY = "shop-expenses-log-v1";
+
+      const saleForm = document.getElementById("saleForm");
+      const saleItem = document.getElementById("saleItem");
+      const saleSold = document.getElementById("saleSold");
+      const saleBenefit = document.getElementById("saleBenefit");
+      const matchHint = document.getElementById("matchHint");
+      const benefitHint = document.getElementById("benefitHint");
+      const pickerList = document.getElementById("pickerList");
+      const salesBody = document.getElementById("salesBody");
+      const emptyState = document.getElementById("emptyState");
+      const notice = document.getElementById("notice");
+
+      function load(key) {
+        try {
+          const parsed = JSON.parse(localStorage.getItem(key) || "[]");
+          return Array.isArray(parsed) ? parsed : [];
+        } catch (error) {
+          console.error("Could not load", key, error);
+          return [];
+        }
+      }
+
+      function save(key, data) {
+        try {
+          localStorage.setItem(key, JSON.stringify(data));
+          return true;
+        } catch (error) {
+          console.error("Could not save", key, error);
+          return false;
+        }
+      }
+
+      const norm = (s) => String(s).trim().toLowerCase();
+      const fmt = (n) =>
+        Number(n).toLocaleString("en-US", { maximumFractionDigits: 2 });
+      const soldOf = (s) =>
+        Number.isFinite(Number(s.sold)) ? Number(s.sold) : 0;
+
+      // ---- Live price (same formula as the inventory page) ----
+      // stored price * current rate / rate when the product was added
+      function readRate() {
+        try {
+          const r = JSON.parse(localStorage.getItem(RATE_KEY));
+          return Number(r && r.rate) > 0 ? Number(r.rate) : null;
+        } catch (e) {
+          return null;
+        }
+      }
+
+      function livePrice(product, base) {
+        if (
+          base === null ||
+          base === undefined ||
+          base === "" ||
+          !Number.isFinite(Number(base))
+        )
+          return null;
+        if (product.trackDollar === false) return Number(base); // fixed price
+        const anchor = Number(product.dollarRateAtAdded);
+        const rate = readRate();
+        if (!rate || !(anchor > 0)) return Number(base);
+        return (Number(base) * rate) / anchor;
+      }
+
+      // ---- Iran dates (Solar Hijri calendar, Tehran time) ----
+      const TZ = "Asia/Tehran";
+      const MONTHS = [
+        "Farvardin",
+        "Ordibehesht",
+        "Khordad",
+        "Tir",
+        "Mordad",
+        "Shahrivar",
+        "Mehr",
+        "Aban",
+        "Azar",
+        "Dey",
+        "Bahman",
+        "Esfand",
+      ];
+      const faDate = (iso) =>
+        new Intl.DateTimeFormat("fa-IR-u-ca-persian-nu-latn", {
+          timeZone: TZ,
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+        }).format(new Date(iso));
+      const jalaliFmt = new Intl.DateTimeFormat("fa-IR-u-ca-persian-nu-latn", {
+        timeZone: TZ,
+        year: "numeric",
+        month: "numeric",
+        day: "numeric",
+      });
+      const gregFmt = new Intl.DateTimeFormat("en-US", {
+        timeZone: TZ,
+        year: "numeric",
+        month: "numeric",
+        day: "numeric",
+      });
+      const pad = (n) => String(n).padStart(2, "0");
+
+      function parts(formatter, date) {
+        const out = {};
+        for (const p of formatter.formatToParts(date))
+          if (p.type !== "literal") out[p.type] = Number(p.value);
+        return out;
+      }
+
+      function dayStart(date) {
+        const g = parts(gregFmt, date);
+        return Date.UTC(g.year, g.month - 1, g.day);
+      }
+
+      // Iranian weeks run Saturday to Friday
+      function weekStart(date) {
+        const day = dayStart(date);
+        const sinceSaturday = (new Date(day).getUTCDay() + 1) % 7;
+        return day - sinceSaturday * 86400000;
+      }
+
+      function jalaliText(ms) {
+        const j = parts(jalaliFmt, new Date(ms + 12 * 3600000));
+        return `${j.year}/${pad(j.month)}/${pad(j.day)}`;
+      }
+
+      function monthInfo(date) {
+        const j = parts(jalaliFmt, date);
+        return {
+          key: j.year * 100 + j.month,
+          label: `${MONTHS[j.month - 1]} ${j.year}`,
+        };
+      }
+
+      function weekLabel(startMs) {
+        return `${jalaliText(startMs)} to ${jalaliText(startMs + 6 * 86400000)}`;
+      }
+
+      function escapeHtml(value) {
+        return String(value)
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#039;");
+      }
+
+      function showNotice(message, type = "success") {
+        notice.textContent = message;
+        notice.className = `notice show ${type}`;
+        clearTimeout(showNotice.t);
+        showNotice.t = setTimeout(() => (notice.className = "notice"), 2500);
+      }
+
+      function findProduct(name) {
+        return load(INVENTORY_KEY).find((p) => norm(p.name) === norm(name));
+      }
+
+      // ---- Item picker (reads the inventory live every time) ----
+      function renderPicker() {
+        const q = norm(saleItem.value);
+        const all = load(INVENTORY_KEY);
+        const list = all.filter((p) => norm(p.name).includes(q));
+
+        pickerList.innerHTML = !all.length
+          ? '<div class="picker-empty">No inventory found in this browser. Open this page from the same address as the inventory page.</div>'
+          : list.length
+            ? list
+                .slice(0, 50)
+                .map(
+                  (
+                    p,
+                  ) => `<div class="picker-item" data-name="${escapeHtml(p.name)}">
+                    <span>${escapeHtml(p.name)}</span><small>${p.count} in stock</small>
+                  </div>`,
+                )
+                .join("")
+            : '<div class="picker-empty">No match. It will be logged as a free-text sale.</div>';
+      }
+
+      // Kept under the old name so other code paths keep working.
+      const renderDatalist = renderPicker;
+
+      // Fill "sold for" and "benefit" from the inventory product.
+      let soldDirty = false;
+      let benefitDirty = false;
+
+      function computeBenefit(product) {
+        const buy = livePrice(product, product.purchasePrice);
+        const sold = Number(saleSold.value);
+        if (buy === null || !saleSold.value || !Number.isFinite(sold)) {
+          benefitHint.textContent = "";
+          return;
+        }
+        saleBenefit.value = Math.round(sold - buy);
+        benefitHint.textContent = `Sold price minus today's buy price (${fmt(Math.round(buy))} Toman).`;
+      }
+
+      function autoFill() {
+        const p = findProduct(saleItem.value);
+        if (!p) {
+          benefitHint.textContent = "";
+          return;
+        }
+        if (!soldDirty) {
+          const live = livePrice(p, p.customerPrice ?? p.price);
+          if (live !== null) saleSold.value = Math.round(live);
+        }
+        if (!benefitDirty) computeBenefit(p);
+      }
+
+      function updateHint() {
+        const name = saleItem.value;
+        if (!name.trim()) {
+          matchHint.textContent = "";
+          matchHint.className = "hint";
+          return;
+        }
+        const p = findProduct(name);
+        if (p) {
+          const cust = livePrice(p, p.customerPrice ?? p.price);
+          matchHint.textContent =
+            `In inventory (${p.count} in stock)` +
+            (cust !== null
+              ? `, customer price ${fmt(Math.round(cust))} Toman`
+              : "") +
+            ". Stock will drop by 1.";
+          matchHint.className = "hint match";
+        } else {
+          matchHint.textContent =
+            "Not in inventory. Logged as a free-text sale.";
+          matchHint.className = "hint";
+        }
+      }
+
+      saleItem.addEventListener("focus", () => {
+        renderPicker();
+        pickerList.classList.add("show");
+      });
+
+      saleItem.addEventListener("input", () => {
+        renderPicker();
+        pickerList.classList.add("show");
+        updateHint();
+        autoFill();
+      });
+
+      pickerList.addEventListener("mousedown", (event) => {
+        const item = event.target.closest(".picker-item");
+        if (!item) return;
+        event.preventDefault();
+        saleItem.value = item.dataset.name;
+        pickerList.classList.remove("show");
+        updateHint();
+        autoFill();
+        saleSold.focus();
+      });
+
+      document.addEventListener("click", (event) => {
+        if (!event.target.closest(".picker"))
+          pickerList.classList.remove("show");
+      });
+
+      saleSold.addEventListener("input", () => {
+        soldDirty = true;
+        const p = findProduct(saleItem.value);
+        if (p && !benefitDirty) computeBenefit(p);
+      });
+
+      saleBenefit.addEventListener("input", () => {
+        benefitDirty = true;
+        benefitHint.textContent = "";
+      });
+
+      // ---- Photo (resized so localStorage stays small) ----
+      let pendingImage = null;
+      let imageBusy = false;
+      const salePhoto = document.getElementById("salePhoto");
+      const saleDetails = document.getElementById("saleDetails");
+      const photoPreview = document.getElementById("photoPreview");
+      const photoImg = document.getElementById("photoImg");
+
+      function shrinkImage(file, maxSide = 720, quality = 0.65) {
+        return new Promise((resolve, reject) => {
+          const url = URL.createObjectURL(file);
+          const img = new Image();
+          img.onload = () => {
+            const scale = Math.min(
+              1,
+              maxSide / Math.max(img.width, img.height),
+            );
+            const canvas = document.createElement("canvas");
+            canvas.width = Math.round(img.width * scale);
+            canvas.height = Math.round(img.height * scale);
+            const ctx = canvas.getContext("2d");
+            ctx.fillStyle = "#fff";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            URL.revokeObjectURL(url);
+            resolve(canvas.toDataURL("image/jpeg", quality));
+          };
+          img.onerror = () => {
+            URL.revokeObjectURL(url);
+            reject(new Error("Could not read this image."));
+          };
+          img.src = url;
+        });
+      }
+
+      async function setImage(file) {
+        if (!file || !file.type.startsWith("image/")) return;
+        imageBusy = true;
+        try {
+          pendingImage = await shrinkImage(file);
+          photoImg.src = pendingImage;
+          photoPreview.classList.add("show");
+        } catch (error) {
+          showNotice(error.message, "error");
+        } finally {
+          imageBusy = false;
+        }
+      }
+
+      function clearImage() {
+        pendingImage = null;
+        salePhoto.value = "";
+        photoImg.removeAttribute("src");
+        photoPreview.classList.remove("show");
+      }
+
+      salePhoto.addEventListener("change", () => setImage(salePhoto.files[0]));
+      document
+        .getElementById("photoRemove")
+        .addEventListener("click", clearImage);
+      saleDetails.addEventListener("paste", (event) => {
+        const file = [...event.clipboardData.files].find((f) =>
+          f.type.startsWith("image/"),
+        );
+        if (file) {
+          event.preventDefault();
+          setImage(file);
+        }
+      });
+
+      // Click a thumbnail to see the full photo
+      const lightbox = document.createElement("div");
+      lightbox.className = "lightbox";
+      lightbox.innerHTML = '<img alt="Sale photo" />';
+      document.body.appendChild(lightbox);
+      lightbox.addEventListener("click", () =>
+        lightbox.classList.remove("show"),
+      );
+      salesBody.addEventListener("click", (event) => {
+        const thumb = event.target.closest(".thumb");
+        if (!thumb) return;
+        event.stopPropagation();
+        lightbox.firstChild.src = thumb.src;
+        lightbox.classList.add("show");
+      });
+
+      // ---- Totals and history ----
+      let historyView = "week";
+
+      function setStat(name, list) {
+        const total = list.reduce((sum, s) => sum + Number(s.benefit), 0);
+        document.getElementById("benefit" + name).textContent = fmt(total);
+        document.getElementById("sales" + name).textContent =
+          `${list.length} ${list.length === 1 ? "sale" : "sales"}`;
+      }
+      function renderNet(sales) {
+        const opExpenses = load(EXPENSES_KEY).filter(
+          (e) => !e.sourceInvoiceId && e.type === "operating",
+        );
+        const now = new Date();
+        const today = dayStart(now);
+        const thisWeek = weekStart(now);
+        const thisMonth = monthInfo(now).key;
+        const periods = {
+          Today: (d) => dayStart(d) === today,
+          Week: (d) => weekStart(d) === thisWeek,
+          Month: (d) => monthInfo(d).key === thisMonth,
+          Total: () => true,
+        };
+        for (const [name, inPeriod] of Object.entries(periods)) {
+          const benefit = sales
+            .filter((s) => inPeriod(new Date(s.date)))
+            .reduce((t, s) => t + Number(s.benefit), 0);
+          const spent = opExpenses
+            .filter((e) => inPeriod(new Date(e.date)))
+            .reduce((t, e) => t + Number(e.cost) + Number(e.shipping), 0);
+          const net = benefit - spent;
+          const el = document.getElementById("net" + name);
+          el.textContent = `${fmt(net)} Toman`;
+          el.className = "stat-value " + (net < 0 ? "neg" : "pos");
+          document.getElementById("net" + name + "Sub").textContent =
+            `${fmt(benefit)} benefit − ${fmt(spent)} expenses`;
+        }
+      }
+      function renderStats(sales) {
+        const now = new Date();
+        const today = dayStart(now);
+        const thisWeek = weekStart(now);
+        const thisMonth = monthInfo(now).key;
+
+        setStat(
+          "Today",
+          sales.filter((s) => dayStart(new Date(s.date)) === today),
+        );
+        setStat(
+          "Week",
+          sales.filter((s) => weekStart(new Date(s.date)) === thisWeek),
+        );
+        setStat(
+          "Month",
+          sales.filter((s) => monthInfo(new Date(s.date)).key === thisMonth),
+        );
+        setStat("Total", sales);
+
+        // Total amount sold (revenue), not benefit
+        document.getElementById("soldTotal").textContent =
+          `${fmt(sales.reduce((sum, s) => sum + soldOf(s), 0))} Toman`;
+        document.getElementById("soldTotalSub").textContent =
+          `${sales.length} ${sales.length === 1 ? "sale" : "sales"}`;
+        renderNet(sales);
+      }
+
+      function renderHistory(sales) {
+        const now = new Date();
+        const isWeek = historyView === "week";
+        const groups = new Map();
+
+        for (const s of sales) {
+          const date = new Date(s.date);
+          const key = isWeek ? weekStart(date) : monthInfo(date).key;
+          if (!groups.has(key)) {
+            groups.set(key, {
+              key,
+              label: isWeek ? weekLabel(key) : monthInfo(date).label,
+              count: 0,
+              sold: 0,
+              total: 0,
+            });
+          }
+          const group = groups.get(key);
+          group.count += 1;
+          group.sold += soldOf(s);
+          group.total += Number(s.benefit);
+        }
+
+        const currentKey = isWeek ? weekStart(now) : monthInfo(now).key;
+        const rows = [...groups.values()].sort((a, b) => b.key - a.key);
+
+        document.getElementById("historyPeriodHead").textContent = isWeek
+          ? "Week (Saturday to Friday)"
+          : "Month";
+        document.getElementById("historyBody").innerHTML = rows.length
+          ? rows
+              .map(
+                (g) => `
+            <tr>
+              <td>${g.label}${g.key === currentKey ? `<span class="tag tag-now">${isWeek ? "This week" : "This month"}</span>` : ""}</td>
+              <td>${g.count}</td>
+              <td class="num">${fmt(g.sold)} Toman</td>
+              <td class="num ${g.total < 0 ? "neg" : "pos"}">${fmt(g.total)} Toman</td>
+            </tr>`,
+              )
+              .join("")
+          : '<tr><td colspan="4" style="color: var(--muted)">No sales yet.</td></tr>';
+      }
+
+      document
+        .getElementById("viewToggle")
+        .addEventListener("click", (event) => {
+          const button = event.target.closest("[data-view]");
+          if (!button) return;
+          historyView = button.dataset.view;
+          document
+            .querySelectorAll("#viewToggle button")
+            .forEach((b) => b.classList.toggle("on", b === button));
+          renderHistory(load(SALES_KEY));
+        });
+
+      // One row for a whole group sale (invoice), instead of one row per item.
+      function groupRowHtml(first, sales, invNo) {
+        const lines = sales.filter((x) => x.invoiceId === first.invoiceId);
+        const sold = lines.reduce((t, x) => t + soldOf(x), 0);
+        const benefit = lines.reduce((t, x) => t + Number(x.benefit), 0);
+        const deducted = lines.reduce(
+          (t, x) => t + (x.deductedQty ?? (x.deducted ? 1 : 0)),
+          0,
+        );
+        const list = lines
+          .map((x) => `${x.name}${x.qty > 1 ? " × " + x.qty : ""}`)
+          .join("\n");
+        return `
+          <tr>
+            <td>${faDate(first.date)}</td>
+            <td>
+              <div class="item-cell" data-inv-open="${first.invoiceId}">
+                <div>
+                  <div class="product-name">${escapeHtml(invNo[first.invoiceId])}${first.customer ? " · " + escapeHtml(first.customer) : ""}<span class="tag tag-inv">Group sale · ${lines.length} ${lines.length === 1 ? "item" : "items"}</span> ${installmentInv(first.invoiceId) ? '<span class="tag tag-inst">Installments</span>' : ""}</div>
+                  <div class="item-details">${escapeHtml(list)}</div>
+                </div>
+              </div>
+            </td>
+            <td class="num">${fmt(sold)} Toman</td>
+            <td class="num ${benefit < 0 ? "neg" : "pos"}">${fmt(benefit)} Toman</td>
+            <td>${
+              deducted
+                ? `<span class="tag tag-stock">−${deducted} from stock</span>`
+                : '<span class="tag tag-free">Not from stock</span>'
+            }</td>
+            <td><div class="actions">
+              <button class="button button-secondary button-small" type="button" data-inv-open="${first.invoiceId}">View / Print</button>
+              <button class="button button-danger button-small" type="button" data-inv-del="${first.invoiceId}">Delete</button>
+            </div></td>
+          </tr>`;
+      }
+
+      function renderSales() {
+        const sales = load(SALES_KEY);
+        const invNo = Object.fromEntries(
+          load(INVOICES_KEY).map((i) => [i.id, i.number]),
+        );
+
+        const seenInv = new Set();
+        const visible = sales.filter((s) => {
+          if (!(s.invoiceId && invNo[s.invoiceId])) return true;
+          if (seenInv.has(s.invoiceId)) return false;
+          seenInv.add(s.invoiceId);
+          return true;
+        });
+
+        salesBody.innerHTML = visible
+          .map((s) =>
+            s.invoiceId && invNo[s.invoiceId]
+              ? groupRowHtml(s, sales, invNo)
+              : `
+          <tr>
+            <td>${faDate(s.date)}</td>
+            <td>
+              <div class="item-cell" data-open="${s.id}">
+                ${s.image ? `<img class="thumb" src="${s.image}" alt="Sale photo" />` : ""}
+                <div>
+                  <div class="product-name">${escapeHtml(s.name)}${s.qty > 1 ? ` × ${s.qty}` : ""}${s.history && s.history.length ? '<span class="tag tag-edited">Edited</span>' : ""}${s.invoiceId && invNo[s.invoiceId] ? `<span class="tag tag-inv">${invNo[s.invoiceId]}${s.customer ? " · " + escapeHtml(s.customer) : ""}</span>` : ""}
+                    ${s.payment && s.payment.type === "installments" ? `<span class="tag tag-inst">Installments${s.customer ? " · " + escapeHtml(s.customer) : ""}</span>` : ""}
+                    </div>
+                  ${s.details ? `<div class="item-details">${escapeHtml(s.details)}</div>` : ""}
+                </div>
+              </div>
+            </td>
+            <td class="num">${s.sold === undefined ? "—" : fmt(s.sold) + " Toman"}</td>
+            <td class="num ${s.benefit < 0 ? "neg" : "pos"}">${fmt(s.benefit)} Toman</td>
+            <td>${
+              s.deducted
+                ? `<span class="tag tag-stock">−${s.deductedQty ?? 1} from stock</span>`
+                : '<span class="tag tag-free">Not from stock</span>'
+            }</td>
+            <td><div class="actions">
+              <button class="button button-secondary button-small" type="button" data-open="${s.id}">Details</button>
+              <button class="button button-danger button-small" type="button" data-id="${s.id}">Delete</button>
+            </div></td>
+          </tr>`,
+          )
+          .join("");
+
+        emptyState.style.display = sales.length ? "none" : "block";
+
+        renderStats(sales);
+        renderHistory(sales);
+        renderInvoices();
+      }
+
+      saleForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+
+        const name = saleItem.value.trim();
+        const sold = Number(saleSold.value);
+        const benefit = Number(saleBenefit.value);
+
+        if (!name) return showNotice("Enter an item name.", "error");
+        if (!saleSold.value || !Number.isFinite(sold))
+          return showNotice("Enter the amount it was sold for.", "error");
+        if (!Number.isFinite(benefit))
+          return showNotice("Enter a valid benefit.", "error");
+        if (imageBusy)
+          return showNotice(
+            "The photo is still processing. Try again in a second.",
+            "error",
+          );
+        let sCust = "";
+        if (sMode === "installments") {
+          sCust = sCustomer.value.trim();
+          if (!sCust)
+            return showNotice(
+              "Enter the customer name for the installment plan.",
+              "error",
+            );
+          if (!sPlan)
+            return showNotice("Set up the installment plan first.", "error");
+          if (Math.abs(sPlan.total - sold) > 0.5)
+            return showNotice(
+              "The sold amount changed after the plan was set. Open the plan and review it.",
+              "error",
+            );
+        }
+        const details = saleDetails.value.trim();
+
+        const products = load(INVENTORY_KEY);
+        const product = products.find((p) => norm(p.name) === norm(name));
+        let deducted = false;
+
+        if (product) {
+          if (product.count > 0) {
+            deducted = true;
+          } else if (
+            !confirm(
+              `"${product.name}" is out of stock. Log the sale anyway without changing stock?`,
+            )
+          ) {
+            return;
+          }
+        }
+
+        const saleId = uuid();
+        const saleName = product ? product.name : name;
+        const receivable =
+          sMode === "installments"
+            ? buildReceivable({
+                customer: sCust,
+                notes: `Sale: ${saleName}`,
+                source: { type: "sale", saleId, label: saleName },
+                plan: sPlan,
+              })
+            : null;
+        const sales = load(SALES_KEY);
+        sales.unshift({
+          id: saleId,
+          name: saleName,
+          productId: product ? product.id : null,
+          sold,
+          benefit,
+          deducted,
+          details,
+          image: pendingImage,
+          date: new Date().toISOString(),
+          history: [],
+          customer: sCust,
+          payment: receivable
+            ? {
+                type: "installments",
+                down: sPlan.down,
+                receivableId: receivable.id,
+              }
+            : { type: "full" },
+        });
+        // Save the sale first, so full storage never changes stock without a log entry.
+        if (!save(SALES_KEY, sales)) {
+          return showNotice(
+            "Browser storage is full. Try without a photo, or delete old sales that have photos.",
+            "error",
+          );
+        }
+        if (deducted) {
+          product.count -= 1;
+          save(INVENTORY_KEY, products);
+        }
+        if (receivable) {
+          const recs = load(RECEIVABLES_KEY);
+          recs.unshift(receivable);
+          if (!save(RECEIVABLES_KEY, recs))
+            alert(
+              "The sale was recorded, but the receivable could not be saved (browser storage is full). Add it manually on the Receivables page.",
+            );
+        }
+
+        saleForm.reset();
+        sPlan = null;
+        setPayMode("full", "single");
+        soldDirty = false;
+        benefitDirty = false;
+        benefitHint.textContent = "";
+        clearImage();
+        renderPicker();
+        updateHint();
+        renderSales();
+        showNotice(
+          (deducted ? "Sale recorded. Stock reduced by 1." : "Sale recorded.") +
+            (receivable ? " Receivable created." : ""),
+        );
+        saleItem.focus();
+      });
+
+      salesBody.addEventListener("click", (event) => {
+        const button = event.target.closest("[data-id]");
+        if (!button) return;
+
+        const sales = load(SALES_KEY);
+        const sale = sales.find((s) => s.id === button.dataset.id);
+        if (!sale) return;
+        const pay =
+          sale.payment && sale.payment.type === "installments"
+            ? sale.payment
+            : null;
+        const rec = pay
+          ? load(RECEIVABLES_KEY).find((r) => r.id === pay.receivableId)
+          : null;
+        let msg =
+          `Delete this sale of "${sale.name}"?` +
+          (sale.deducted ? " The item goes back into stock." : "");
+        if (rec)
+          msg +=
+            `\n\nIts receivable record will be deleted too.` +
+            (Number(rec.amountPaid) > pay.down
+              ? ` ${money(Number(rec.amountPaid) - pay.down)} Toman of installments were already recorded as collected.`
+              : "");
+        if (!confirm(msg)) return;
+
+        // Put the item back into stock if this sale had taken one.
+        if (sale.deducted && sale.productId) {
+          const products = load(INVENTORY_KEY);
+          const product = products.find((p) => p.id === sale.productId);
+          if (product) {
+            product.count += sale.deductedQty ?? 1;
+            save(INVENTORY_KEY, products);
+          }
+        }
+
+        save(
+          SALES_KEY,
+          sales.filter((s) => s.id !== sale.id),
+        );
+        if (rec)
+          save(
+            RECEIVABLES_KEY,
+            load(RECEIVABLES_KEY).filter((r) => r.id !== rec.id),
+          );
+        removeLineFromInvoice(sale);
+        renderPicker();
+        updateHint();
+        renderSales();
+      });
+
+      // ---- Detail + Edit modals ----
+      let activeSaleId = null;
+      const detailBackdrop = document.getElementById("detailBackdrop");
+      const detailBody = document.getElementById("detailBody");
+      const editBackdrop = document.getElementById("editBackdrop");
+      const editForm = document.getElementById("editForm");
+
+      function fieldLabel(field) {
+        return (
+          {
+            name: "Item",
+            sold: "Sold for",
+            benefit: "Benefit",
+            details: "Details",
+          }[field] || field
+        );
+      }
+
+      function fieldDisplay(field, value) {
+        if (field === "benefit" || field === "sold")
+          return `${fmt(value)} Toman`;
+        if (!value) return "(empty)";
+        return escapeHtml(value);
+      }
+
+      function renderDetail(sale) {
+        const history = sale.history || [];
+        let html = `
+          <div class="detail-row"><span class="k">Item</span><span class="v">${escapeHtml(sale.name)}</span></div>
+          <div class="detail-row"><span class="k">Sold for</span><span class="v">${sale.sold === undefined ? "(not recorded)" : fmt(sale.sold) + " Toman"}</span></div>
+          <div class="detail-row"><span class="k">Benefit</span><span class="v">${fmt(sale.benefit)} Toman</span></div>
+          <div class="detail-row"><span class="k">Details</span><span class="v">${sale.details ? escapeHtml(sale.details) : "(none)"}</span></div>
+          <div class="detail-row"><span class="k">Stock effect</span><span class="v">${sale.deducted ? "−1 from stock" : "Not from stock"}</span></div>
+          <div class="detail-row"><span class="k">Published</span><span class="v">${faDate(sale.date)}</span></div>
+        `;
+        if (history.length) {
+          html += `<div class="history-log"><h3>Edit history (${history.length})</h3>`;
+          for (const entry of [...history].reverse()) {
+            html += `<div class="history-entry"><div class="when">Edited ${faDate(entry.at)}</div>`;
+            for (const field of Object.keys(entry.changes)) {
+              const c = entry.changes[field];
+              html += `<div class="history-change"><span class="field">${fieldLabel(field)}:</span> <span class="before">${fieldDisplay(field, c.before)}</span> → <span class="after">${fieldDisplay(field, c.after)}</span></div>`;
+            }
+            html += `</div>`;
+          }
+          html += `</div>`;
+        } else {
+          html += `<div class="history-log"><h3>Edit history</h3><p class="hint">No edits yet — still as originally published.</p></div>`;
+        }
+        detailBody.innerHTML = html;
+      }
+
+      function openDetail(id) {
+        const sale = load(SALES_KEY).find((s) => s.id === id);
+        if (!sale) return;
+        activeSaleId = id;
+        renderDetail(sale);
+        detailBackdrop.classList.add("show");
+      }
+
+      function closeDetail() {
+        detailBackdrop.classList.remove("show");
+      }
+
+      function openEdit(id) {
+        const sale = load(SALES_KEY).find((s) => s.id === id);
+        if (!sale) return;
+        activeSaleId = id;
+        document.getElementById("editItem").value = sale.name;
+        document.getElementById("editSold").value =
+          sale.sold === undefined ? "" : sale.sold;
+        document.getElementById("editBenefit").value = sale.benefit;
+        document.getElementById("editDetails").value = sale.details || "";
+        closeDetail();
+        editBackdrop.classList.add("show");
+      }
+
+      function closeEdit() {
+        editBackdrop.classList.remove("show");
+      }
+
+      salesBody.addEventListener("click", (event) => {
+        const opener = event.target.closest("[data-open]");
+        if (!opener) return;
+        openDetail(opener.dataset.open);
+      });
+
+      document
+        .getElementById("detailClose")
+        .addEventListener("click", closeDetail);
+      document
+        .getElementById("detailOk")
+        .addEventListener("click", closeDetail);
+      detailBackdrop.addEventListener("click", (event) => {
+        if (event.target === detailBackdrop) closeDetail();
+      });
+      document
+        .getElementById("detailEditBtn")
+        .addEventListener("click", () => openEdit(activeSaleId));
+
+      document.getElementById("editClose").addEventListener("click", closeEdit);
+      document
+        .getElementById("editCancel")
+        .addEventListener("click", closeEdit);
+      editBackdrop.addEventListener("click", (event) => {
+        if (event.target === editBackdrop) closeEdit();
+      });
+
+      editForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+
+        const sales = load(SALES_KEY);
+        const sale = sales.find((s) => s.id === activeSaleId);
+        if (!sale) return closeEdit();
+
+        const newName = document.getElementById("editItem").value.trim();
+        const soldRaw = document.getElementById("editSold").value;
+        const newSold = Number(soldRaw);
+        const newBenefit = Number(document.getElementById("editBenefit").value);
+        const newDetails = document.getElementById("editDetails").value.trim();
+
+        if (!newName) return showNotice("Enter an item name.", "error");
+        if (!soldRaw || !Number.isFinite(newSold))
+          return showNotice("Enter the amount it was sold for.", "error");
+        if (!Number.isFinite(newBenefit))
+          return showNotice("Enter a valid benefit.", "error");
+        if (
+          sale.payment &&
+          sale.payment.type === "installments" &&
+          newSold !== sale.sold
+        )
+          return alert(
+            "This sale has an installment plan. Delete it and record it again to change the amount.",
+          );
+        const changes = {};
+        if (norm(newName) !== norm(sale.name))
+          changes.name = { before: sale.name, after: newName };
+        if (newSold !== sale.sold)
+          changes.sold = {
+            before: sale.sold === undefined ? 0 : sale.sold,
+            after: newSold,
+          };
+        if (newBenefit !== Number(sale.benefit))
+          changes.benefit = { before: sale.benefit, after: newBenefit };
+        if (newDetails !== (sale.details || ""))
+          changes.details = { before: sale.details || "", after: newDetails };
+
+        if (Object.keys(changes).length === 0) {
+          closeEdit();
+          return;
+        }
+
+        sale.name = newName;
+        sale.sold = newSold;
+        sale.benefit = newBenefit;
+        sale.details = newDetails;
+        sale.history = sale.history || [];
+        sale.history.push({ at: new Date().toISOString(), changes });
+
+        save(SALES_KEY, sales);
+        syncInvoiceFromSale(sale);
+        closeEdit();
+        renderSales();
+        showNotice("Sale updated.");
+      });
+
+      // ================= Group sale (one customer, many items) + invoices =================
+      const CONTACT_LABELS = {
+        partner: "Partner",
+        supplier: "Supplier",
+        regular: "Regular customer",
+        special: "Special customer",
+      };
+      const uuid = () =>
+        crypto.randomUUID
+          ? crypto.randomUUID()
+          : `${Date.now()}-${Math.random()}`;
+      const hasNum = (v) =>
+        v !== null && v !== undefined && v !== "" && Number.isFinite(Number(v));
+      const toNum = (v) => (Number.isFinite(Number(v)) ? Number(v) : 0);
+      const money = (n) => fmt(Math.round(toNum(n)));
+
+      const groupBackdrop = document.getElementById("groupBackdrop");
+      const gCustomer = document.getElementById("gCustomer");
+      const gCustomerList = document.getElementById("gCustomerList");
+      const gPhone = document.getElementById("gPhone");
+      const gPriceList = document.getElementById("gPriceList");
+      const gLines = document.getElementById("gLines");
+      const gNotice = document.getElementById("gNotice");
+      const invoiceBody = document.getElementById("invoiceBody");
+      const invoiceBackdrop = document.getElementById("invoiceBackdrop");
+      const invBody = document.getElementById("invBody");
+      const invInternal = document.getElementById("invInternal");
+      let activeInvoiceId = null;
+
+      function gShow(message, type = "success") {
+        gNotice.textContent = message;
+        gNotice.className = `notice show ${type}`;
+        clearTimeout(gShow.t);
+        gShow.t = setTimeout(() => (gNotice.className = "notice"), 3500);
+      }
+
+      // Close any open dropdown when clicking elsewhere
+      document.addEventListener("click", (event) => {
+        if (!event.target.closest(".picker"))
+          document
+            .querySelectorAll(".picker-list.show")
+            .forEach((el) => el.classList.remove("show"));
+      });
+
+      // ---- Customer picker (from the Contacts page) ----
+      function renderCustomerPicker() {
+        const q = norm(gCustomer.value);
+        const all = load(CONTACTS_KEY);
+        const list = all.filter((c) =>
+          norm(`${c.name} ${c.phone || ""}`).includes(q),
+        );
+        gCustomerList.innerHTML = !all.length
+          ? '<div class="picker-empty">No contacts saved yet. You can still type a name.</div>'
+          : list.length
+            ? list
+                .slice(0, 50)
+                .map(
+                  (
+                    c,
+                  ) => `<div class="picker-item" data-id="${escapeHtml(c.id)}">
+                    <span>${escapeHtml(c.name)}</span><small>${CONTACT_LABELS[c.category] || ""}</small>
+                  </div>`,
+                )
+                .join("")
+            : '<div class="picker-empty">No match. The name will be used as typed.</div>';
+        gCustomerList.classList.add("show");
+      }
+
+      gCustomer.addEventListener("focus", renderCustomerPicker);
+      gCustomer.addEventListener("input", renderCustomerPicker);
+      gCustomerList.addEventListener("mousedown", (event) => {
+        const item = event.target.closest(".picker-item");
+        if (!item) return;
+        event.preventDefault();
+        const c = load(CONTACTS_KEY).find((x) => x.id === item.dataset.id);
+        if (!c) return;
+        gCustomer.value = c.name;
+        gPhone.value = c.phone || "";
+        gPriceList.value = c.category === "partner" ? "partner" : "customer";
+        gCustomerList.classList.remove("show");
+        refillUnitPrices();
+      });
+
+      // ---- Item lines ----
+      function addLine() {
+        const tr = document.createElement("tr");
+        tr.className = "line";
+        tr.innerHTML = `
+          <td>
+            <div class="picker">
+              <input class="l-name" type="text" placeholder="Pick or type an item" maxlength="100" autocomplete="off" />
+              <div class="picker-list"></div>
+            </div>
+          </td>
+          <td><input class="l-qty" type="number" min="1" step="1" value="1" /></td>
+          <td><input class="l-buy" type="number" step="any" placeholder="0" /></td>
+          <td><input class="l-sold" type="number" step="any" placeholder="Price" /></td>
+          <td class="num l-benefit">0</td>
+          <td><button type="button" class="button button-danger button-small l-remove">&times;</button></td>`;
+        gLines.appendChild(tr);
+        return tr;
+      }
+
+      function unitPrices(p) {
+        const usePartner =
+          gPriceList.value === "partner" && hasNum(p.partnerPrice);
+        const soldLive = livePrice(
+          p,
+          usePartner ? p.partnerPrice : (p.customerPrice ?? p.price),
+        );
+        const buyLive = livePrice(p, p.purchasePrice);
+        return {
+          sold: soldLive === null ? "" : Math.round(soldLive),
+          buy: buyLive === null ? "" : Math.round(buyLive),
+        };
+      }
+
+      function fillRow(tr, p, force) {
+        tr.dataset.productId = p.id;
+        const u = unitPrices(p);
+        const soldEl = tr.querySelector(".l-sold");
+        const buyEl = tr.querySelector(".l-buy");
+        if (force || !soldEl.dataset.dirty) soldEl.value = u.sold;
+        if (force || !buyEl.dataset.dirty) buyEl.value = u.buy;
+        updateTotals();
+      }
+
+      function refillUnitPrices() {
+        const products = load(INVENTORY_KEY);
+        for (const tr of gLines.querySelectorAll("tr.line")) {
+          const p = products.find((x) => x.id === tr.dataset.productId);
+          if (p) fillRow(tr, p, false);
+        }
+        updateTotals();
+      }
+
+      gPriceList.addEventListener("change", refillUnitPrices);
+
+      function renderLinePicker(tr) {
+        const q = norm(tr.querySelector(".l-name").value);
+        const all = load(INVENTORY_KEY);
+        const list = all.filter((p) => norm(p.name).includes(q));
+        const el = tr.querySelector(".picker-list");
+        el.innerHTML = !all.length
+          ? '<div class="picker-empty">No inventory found. Type a name for a free-text item.</div>'
+          : list.length
+            ? list
+                .slice(0, 50)
+                .map(
+                  (
+                    p,
+                  ) => `<div class="picker-item" data-id="${escapeHtml(p.id)}">
+                    <span>${escapeHtml(p.name)}</span><small>${p.count} in stock</small>
+                  </div>`,
+                )
+                .join("")
+            : '<div class="picker-empty">No match. It will be logged as a free-text item.</div>';
+        el.classList.add("show");
+      }
+
+      function updateTotals() {
+        let buy = 0;
+        let sold = 0;
+        for (const tr of gLines.querySelectorAll("tr.line")) {
+          const qty = toNum(tr.querySelector(".l-qty").value);
+          const b = toNum(tr.querySelector(".l-buy").value);
+          const sp = toNum(tr.querySelector(".l-sold").value);
+          const benefit = qty * (sp - b);
+          const cell = tr.querySelector(".l-benefit");
+          cell.textContent = money(benefit);
+          cell.className = "num l-benefit " + (benefit < 0 ? "neg" : "pos");
+          buy += qty * b;
+          sold += qty * sp;
+        }
+        document.getElementById("gTotBuy").textContent = `${money(buy)} Toman`;
+        document.getElementById("gTotSold").textContent =
+          `${money(sold)} Toman`;
+        document.getElementById("gTotBenefit").textContent =
+          `${money(sold - buy)} Toman`;
+        renderPlanSummary();
+      }
+
+      gLines.addEventListener("focusin", (event) => {
+        if (event.target.matches(".l-name"))
+          renderLinePicker(event.target.closest("tr.line"));
+      });
+
+      gLines.addEventListener("input", (event) => {
+        const tr = event.target.closest("tr.line");
+        if (!tr) return;
+        if (event.target.matches(".l-name")) {
+          renderLinePicker(tr);
+          const p = findProduct(event.target.value);
+          if (p) fillRow(tr, p, false);
+          else delete tr.dataset.productId;
+        }
+        if (event.target.matches(".l-buy, .l-sold"))
+          event.target.dataset.dirty = "1";
+        updateTotals();
+      });
+
+      gLines.addEventListener("mousedown", (event) => {
+        const item = event.target.closest(".picker-item");
+        if (!item) return;
+        event.preventDefault();
+        const tr = item.closest("tr.line");
+        const p = load(INVENTORY_KEY).find((x) => x.id === item.dataset.id);
+        if (!tr || !p) return;
+        tr.querySelector(".l-name").value = p.name;
+        delete tr.querySelector(".l-sold").dataset.dirty;
+        delete tr.querySelector(".l-buy").dataset.dirty;
+        fillRow(tr, p, true);
+        tr.querySelector(".picker-list").classList.remove("show");
+        tr.querySelector(".l-qty").focus();
+      });
+
+      gLines.addEventListener("click", (event) => {
+        const btn = event.target.closest(".l-remove");
+        if (!btn) return;
+        if (gLines.querySelectorAll("tr.line").length <= 1) return;
+        btn.closest("tr.line").remove();
+        updateTotals();
+      });
+
+      document.getElementById("gAddLine").addEventListener("click", () => {
+        addLine().querySelector(".l-name").focus();
+      });
+
+      function openGroup() {
+        gCustomer.value = "";
+        gPhone.value = "";
+        gPriceList.value = "customer";
+        gLines.innerHTML = "";
+        addLine();
+        updateTotals();
+        gNotice.className = "notice";
+        gPlan = null;
+        setPayMode("full");
+        groupBackdrop.classList.add("show");
+        gCustomer.focus();
+      }
+
+      function closeGroup() {
+        groupBackdrop.classList.remove("show");
+      }
+
+      document
+        .getElementById("newInvoiceBtn")
+        .addEventListener("click", openGroup);
+      document
+        .getElementById("groupClose")
+        .addEventListener("click", closeGroup);
+      document
+        .getElementById("groupCancel")
+        .addEventListener("click", closeGroup);
+      groupBackdrop.addEventListener("click", (event) => {
+        if (event.target === groupBackdrop) closeGroup();
+      });
+
+      // ---- Record the group sale ----
+      function nextInvoiceNumber(invoices) {
+        const max = invoices.reduce(
+          (m, i) =>
+            Math.max(m, Number(String(i.number).replace(/\D/g, "")) || 0),
+          0,
+        );
+        return "INV-" + String(max + 1).padStart(4, "0");
+      }
+
+      function invoiceTotals(inv) {
+        let buy = 0;
+        let sold = 0;
+        for (const l of inv.lines) {
+          buy += l.qty * l.unitBuy;
+          sold += l.qty * l.unitSold;
+        }
+        return { buy, sold, benefit: sold - buy };
+      }
+
+      document.getElementById("groupSave").addEventListener("click", () => {
+        const customer = gCustomer.value.trim();
+        const phone = gPhone.value.trim();
+        if (!customer) return gShow("Enter the customer name.", "error");
+
+        const lines = [];
+        for (const tr of gLines.querySelectorAll("tr.line")) {
+          const name = tr.querySelector(".l-name").value.trim();
+          const qty = Number(tr.querySelector(".l-qty").value);
+          const soldRaw = tr.querySelector(".l-sold").value;
+          const buyRaw = tr.querySelector(".l-buy").value;
+          if (!name && !soldRaw && !buyRaw) continue; // blank row
+          if (!name) return gShow("Every line needs an item name.", "error");
+          if (!Number.isInteger(qty) || qty < 1)
+            return gShow(
+              `Quantity for "${name}" must be a whole number, 1 or more.`,
+              "error",
+            );
+          if (soldRaw === "" || !Number.isFinite(Number(soldRaw)))
+            return gShow(`Enter the sold price for "${name}".`, "error");
+          lines.push({
+            name,
+            qty,
+            unitSold: Number(soldRaw),
+            unitBuy: buyRaw === "" ? 0 : Number(buyRaw),
+            productId: tr.dataset.productId || null,
+          });
+        }
+        let plan = null;
+        if (payMode === "installments") {
+          if (!gPlan)
+            return gShow("Set up the installment plan first.", "error");
+          const totalNow = lines.reduce((t, l) => t + l.qty * l.unitSold, 0);
+          if (Math.abs(gPlan.total - totalNow) > 0.5)
+            return gShow(
+              "The invoice total changed after the plan was set. Open the plan and review it.",
+              "error",
+            );
+          plan = gPlan;
+        }
+        if (!lines.length) return gShow("Add at least one item.", "error");
+
+        // Stock check (the same product can appear on several lines)
+        const products = load(INVENTORY_KEY);
+        const need = new Map();
+        for (const l of lines)
+          if (l.productId)
+            need.set(l.productId, (need.get(l.productId) || 0) + l.qty);
+        const short = [];
+        for (const [id, q] of need) {
+          const p = products.find((x) => x.id === id);
+          if (p && p.count < q)
+            short.push(`${p.name} (in stock ${p.count}, selling ${q})`);
+        }
+        if (
+          short.length &&
+          !confirm(
+            "Not enough stock for:\n" +
+              short.join("\n") +
+              "\n\nRecord anyway? Stock only goes down to 0.",
+          )
+        )
+          return;
+
+        const now = new Date().toISOString();
+        const invoices = load(INVOICES_KEY);
+        const invId = uuid();
+        const number = nextInvoiceNumber(invoices);
+
+        // Every line becomes a normal sale, so stats and history stay correct.
+        const newSales = lines.map((l) => {
+          const p = l.productId
+            ? products.find((x) => x.id === l.productId)
+            : null;
+          let deductedQty = 0;
+          if (p) {
+            deductedQty = Math.min(p.count, l.qty);
+            p.count -= deductedQty;
+            l.name = p.name;
+          }
+          l.saleId = uuid();
+          return {
+            id: l.saleId,
+            name: l.name,
+            productId: p ? p.id : null,
+            qty: l.qty,
+            unitSold: l.unitSold,
+            unitBuy: l.unitBuy,
+            sold: l.qty * l.unitSold,
+            benefit: l.qty * (l.unitSold - l.unitBuy),
+            deducted: deductedQty > 0,
+            deductedQty,
+            details: "",
+            image: null,
+            date: now,
+            history: [],
+            invoiceId: invId,
+            customer,
+          };
+        });
+
+        // Save the sales first, so full storage never changes stock without a log entry.
+        if (!save(SALES_KEY, [...newSales, ...load(SALES_KEY)]))
+          return gShow(
+            "Browser storage is full. Delete old sales with photos and try again.",
+            "error",
+          );
+        if (need.size) save(INVENTORY_KEY, products);
+
+        const receivable = plan
+          ? buildReceivable({
+              customer,
+              notes: `Sale ${number}${phone ? " · " + phone : ""}`,
+              source: { type: "sale", invoiceId: invId, label: number },
+              plan,
+            })
+          : null;
+
+        invoices.unshift({
+          id: invId,
+          number,
+          date: now,
+          customer: { name: customer, phone },
+          priceList: gPriceList.value,
+          lines: lines.map((l) => ({
+            saleId: l.saleId,
+            name: l.name,
+            qty: l.qty,
+            unitBuy: l.unitBuy,
+            unitSold: l.unitSold,
+          })),
+          payment: receivable
+            ? {
+                type: "installments",
+                down: plan.down,
+                receivableId: receivable.id,
+                rows: receivable.installments.map((i) => ({
+                  label: i.label,
+                  dueDate: i.dueDate,
+                  amount: i.amount,
+                })),
+              }
+            : { type: "full" },
+        });
+        save(INVOICES_KEY, invoices);
+
+        if (receivable) {
+          const recs = load(RECEIVABLES_KEY);
+          recs.unshift(receivable);
+          if (!save(RECEIVABLES_KEY, recs))
+            alert(
+              "The sale was recorded, but the receivable could not be saved (browser storage is full). Add it manually on the Receivables page.",
+            );
+        }
+
+        closeGroup();
+        renderPicker();
+        updateHint();
+        renderSales();
+        openInvoice(invId);
+        showNotice(
+          receivable
+            ? `Group sale recorded as ${number}. Receivable created.`
+            : `Group sale recorded as ${number}.`,
+        );
+      });
+
+      // ---- Invoice list + view/print ----
+      function renderInvoices() {
+        const invoices = load(INVOICES_KEY);
+        invoiceBody.innerHTML = invoices.length
+          ? invoices
+              .map((inv) => {
+                const t = invoiceTotals(inv);
+                return `<tr>
+                  <td class="product-name">${escapeHtml(inv.number)}</td>
+                  <td>${faDate(inv.date)}</td>
+                 <td>${escapeHtml(inv.customer.name)}${inv.payment && inv.payment.type === "installments" ? '<span class="tag tag-inst">Installments</span>' : ""}</td>
+                  <td>${inv.lines.length}</td>
+                  <td class="num">${money(t.sold)} Toman</td>
+                  <td class="num ${t.benefit < 0 ? "neg" : "pos"}">${money(t.benefit)} Toman</td>
+                  <td><div class="actions">
+                    <button class="button button-secondary button-small" type="button" data-inv-open="${inv.id}">View / Print</button>
+                    <button class="button button-danger button-small" type="button" data-inv-del="${inv.id}">Delete</button>
+                  </div></td>
+                </tr>`;
+              })
+              .join("")
+          : '<tr><td colspan="7" style="color: var(--muted)">No group sales yet.</td></tr>';
+      }
+
+      function renderInvoice() {
+        const inv = load(INVOICES_KEY).find((i) => i.id === activeInvoiceId);
+        if (!inv) return;
+        const internal = invInternal.checked;
+        const t = invoiceTotals(inv);
+
+        const rows = inv.lines
+          .map((l, i) => {
+            const benefit = l.qty * (l.unitSold - l.unitBuy);
+            return `<tr>
+              <td>${i + 1}</td>
+              <td>${escapeHtml(l.name)}</td>
+              <td class="num">${l.qty}</td>
+              <td class="num">${money(l.unitSold)}</td>
+              <td class="num">${money(l.qty * l.unitSold)}</td>
+              ${internal ? `<td class="num">${money(l.unitBuy)}</td><td class="num ${benefit < 0 ? "neg" : "pos"}">${money(benefit)}</td>` : ""}
+            </tr>`;
+          })
+          .join("");
+        const pay =
+          inv.payment && inv.payment.type === "installments"
+            ? inv.payment
+            : null;
+        const payHtml = pay
+          ? `<h3 style="margin: 18px 0 8px; font-size: 14px">Payment plan</h3>
+     <table class="inv-table">
+       <thead><tr><th>#</th><th>Due date</th><th>Amount (Toman)</th></tr></thead>
+       <tbody>${pay.rows
+         .map(
+           (r, i) =>
+             `<tr><td>${i + 1}</td><td>${r.label ? escapeHtml(r.label) + " — " : ""}${faDay(r.dueDate)}</td><td class="num">${money(r.amount)}</td></tr>`,
+         )
+         .join("")}</tbody>
+     </table>`
+          : "";
+        invBody.innerHTML = `
+          <div class="inv-head">
+            <div>
+              <h2>Invoice</h2>
+              <div style="color: var(--muted)">No. ${escapeHtml(inv.number)}</div>
+            </div>
+            <div style="text-align: right">
+              <div style="color: var(--muted)">Date</div>
+              <div style="font-weight: 700">${faDate(inv.date)}</div>
+            </div>
+          </div>
+          <div class="detail-row" style="border-top: 1px solid var(--border)">
+            <span class="k">Customer</span>
+            <span class="v">${escapeHtml(inv.customer.name)}${inv.customer.phone ? " · " + escapeHtml(inv.customer.phone) : ""}</span>
+          </div>
+          <table class="inv-table" style="margin-top: 14px">
+            <thead>
+              <tr>
+                <th>#</th><th>Item</th><th>Qty</th><th>Unit price</th><th>Total</th>
+                ${internal ? "<th>Purchase (each)</th><th>Benefit</th>" : ""}
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+            <tfoot>
+              <tr>
+                <td colspan="4" style="text-align: right">Total (Toman)</td>
+                <td class="num">${money(t.sold)}</td>
+                ${internal ? `<td class="num">${money(t.buy)}</td><td class="num ${t.benefit < 0 ? "neg" : "pos"}">${money(t.benefit)}</td>` : ""}
+              </tr>
+            </tfoot>
+          </table>
+          ${payHtml}
+          ${internal ? '<p class="hint" style="margin-top: 12px">Internal copy. The last two columns are total purchase and total benefit, not for the customer.</p>' : '<p class="hint" style="margin-top: 12px">All amounts are in Toman.</p>'}`;
+      }
+
+      function openInvoice(id) {
+        activeInvoiceId = id;
+        invInternal.checked = false;
+        renderInvoice();
+        invoiceBackdrop.classList.add("show");
+      }
+
+      function closeInvoice() {
+        invoiceBackdrop.classList.remove("show");
+      }
+
+      invInternal.addEventListener("change", renderInvoice);
+      document
+        .getElementById("invPrint")
+        .addEventListener("click", () => window.print());
+      document
+        .getElementById("invClose")
+        .addEventListener("click", closeInvoice);
+      document.getElementById("invOk").addEventListener("click", closeInvoice);
+      invoiceBackdrop.addEventListener("click", (event) => {
+        if (event.target === invoiceBackdrop) closeInvoice();
+      });
+
+      const handleInvoiceClick = (event) => {
+        const open = event.target.closest("[data-inv-open]");
+        if (open) return openInvoice(open.dataset.invOpen);
+
+        const del = event.target.closest("[data-inv-del]");
+        if (!del) return;
+        const invoices = load(INVOICES_KEY);
+        const inv = invoices.find((i) => i.id === del.dataset.invDel);
+        if (!inv) return;
+        const pay =
+          inv.payment && inv.payment.type === "installments"
+            ? inv.payment
+            : null;
+        const rec = pay
+          ? load(RECEIVABLES_KEY).find((r) => r.id === pay.receivableId)
+          : null;
+        let msg = `Delete ${inv.number} and its ${inv.lines.length} sale(s)? The items go back into stock.`;
+        if (rec)
+          msg +=
+            `\n\nIts receivable record will be deleted too.` +
+            (Number(rec.amountPaid) > pay.down
+              ? ` ${money(Number(rec.amountPaid) - pay.down)} Toman of installments were already recorded as collected.`
+              : "");
+        if (!confirm(msg)) return;
+
+        const sales = load(SALES_KEY);
+        const products = load(INVENTORY_KEY);
+        for (const s of sales.filter((x) => x.invoiceId === inv.id)) {
+          const p = s.productId
+            ? products.find((x) => x.id === s.productId)
+            : null;
+          if (p) p.count += s.deductedQty ?? (s.deducted ? 1 : 0);
+        }
+        save(INVENTORY_KEY, products);
+        save(
+          SALES_KEY,
+          sales.filter((x) => x.invoiceId !== inv.id),
+        );
+        save(
+          INVOICES_KEY,
+          invoices.filter((i) => i.id !== inv.id),
+        );
+        if (rec)
+          save(
+            RECEIVABLES_KEY,
+            load(RECEIVABLES_KEY).filter((r) => r.id !== rec.id),
+          );
+        renderPicker();
+        updateHint();
+        renderSales();
+      };
+      invoiceBody.addEventListener("click", handleInvoiceClick);
+      salesBody.addEventListener("click", handleInvoiceClick);
+
+      // Keep invoices in step when a single sale line is deleted or edited.
+      function removeLineFromInvoice(sale) {
+        if (!sale.invoiceId) return;
+        let invoices = load(INVOICES_KEY);
+        const inv = invoices.find((i) => i.id === sale.invoiceId);
+        if (!inv) return;
+        inv.lines = inv.lines.filter((l) => l.saleId !== sale.id);
+        if (!inv.lines.length)
+          invoices = invoices.filter((i) => i.id !== inv.id);
+        save(INVOICES_KEY, invoices);
+      }
+
+      function syncInvoiceFromSale(sale) {
+        if (!sale.invoiceId) return;
+        const invoices = load(INVOICES_KEY);
+        const inv = invoices.find((i) => i.id === sale.invoiceId);
+        const line = inv && inv.lines.find((l) => l.saleId === sale.id);
+        if (!line) return;
+        const qty = sale.qty || 1;
+        line.name = sale.name;
+        line.unitSold = Number(sale.sold) / qty;
+        line.unitBuy = (Number(sale.sold) - Number(sale.benefit)) / qty;
+        save(INVOICES_KEY, invoices);
+      }
+      // ================= Installments (group sale → receivable) =================
+      const RECEIVABLES_KEY = "shop-receivables-v1";
+      const DAY = 86400000;
+      const WEEKDAY = new Intl.DateTimeFormat("en-US", {
+        timeZone: TZ,
+        weekday: "long",
+      });
+      const faDay = (iso) =>
+        new Intl.DateTimeFormat("fa-IR-u-ca-persian-nu-latn", {
+          timeZone: TZ,
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+        }).format(new Date(iso));
+
+      const todayYmd = () => {
+        const g = parts(gregFmt, new Date());
+        return `${g.year}-${pad(g.month)}-${pad(g.day)}`;
+      };
+      const ymdToMs = (s) => {
+        const [y, m, d] = s.split("-").map(Number);
+        return Date.UTC(y, m - 1, d, 12);
+      };
+      const msToYmd = (ms) => new Date(ms).toISOString().slice(0, 10);
+      const ymdToIso = (s) => new Date(s + "T12:00:00").toISOString();
+      const jparts = (ms) => parts(jalaliFmt, new Date(ms));
+      const msToJalali = (ms) => {
+        const j = jparts(ms);
+        return `${j.year}/${pad(j.month)}/${pad(j.day)}`;
+      };
+      const latinDigits = (s) =>
+        String(s)
+          .replace(/[۰-۹]/g, (d) => "۰۱۲۳۴۵۶۷۸۹".indexOf(d))
+          .replace(/[٠-٩]/g, (d) => "٠١٢٣٤٥٦٧٨٩".indexOf(d));
+
+      // "1405/08/01" -> "2026-10-23", or null if it isn't a real Solar Hijri date
+      function jalaliToYmd(str) {
+        const m = /^(\d{4})[\/\-.](\d{1,2})[\/\-.](\d{1,2})$/.exec(
+          latinDigits(str).trim(),
+        );
+        if (!m) return null;
+        const [jy, jm, jd] = m.slice(1).map(Number);
+        if (jm < 1 || jm > 12 || jd < 1 || jd > 31) return null;
+        const key = (y, mo, d) => y * 372 + mo * 31 + d;
+        let ms =
+          Date.UTC(jy + 621, 2, 21, 12) +
+          Math.round((jm - 1) * 30.5 + jd - 1) * DAY;
+        for (let i = 0; i < 60; i++) {
+          const p = jparts(ms);
+          if (p.year === jy && p.month === jm && p.day === jd)
+            return msToYmd(ms);
+          const diff = key(jy, jm, jd) - key(p.year, p.month, p.day);
+          ms += (diff > 0 ? 1 : -1) * DAY;
+        }
+        return null;
+      }
+
+      // Same Solar Hijri day, n months later (clamped to the month's last day)
+      function addJalaliMonths(ms, n) {
+        if (!n) return ms;
+        const j = jparts(ms);
+        const idx = j.year * 12 + (j.month - 1) + n;
+        const ty = Math.floor(idx / 12);
+        const tm = (idx % 12) + 1;
+        let last = null;
+        for (let k = n * 28 - 2; k <= n * 31 + 2; k++) {
+          const t = ms + k * DAY;
+          const p = jparts(t);
+          if (p.year === ty && p.month === tm) {
+            if (p.day === j.day) return t;
+            last = t;
+          }
+        }
+        return last;
+      }
+
+      const ymdHint = (j) => {
+        if (!j) return "";
+        const y = jalaliToYmd(j);
+        return y
+          ? `${y} · ${WEEKDAY.format(new Date(ymdToMs(y)))}`
+          : "Not a valid date";
+      };
+
+      const pBackdrop = document.getElementById("planBackdrop");
+      const pDown = document.getElementById("pDown");
+      const pCount = document.getElementById("pCount");
+      const pEvery = document.getElementById("pEvery");
+      const pFirst = document.getElementById("pFirst");
+      const pFirstHint = document.getElementById("pFirstHint");
+      const pRows = document.getElementById("pRows");
+      const pSumHint = document.getElementById("pSumHint");
+      const pNotice = document.getElementById("pNotice");
+      const pResplit = document.getElementById("pResplit");
+
+      let payMode = "full";
+      let gPlan = null; // saved plan: { total, down, count, every, firstJ, custom, rows: [{id, dueJ, amount}] }
+      let sMode = "full";
+      let sPlan = null;
+      let planCtx = "group";
+      const ctxGet = (c) =>
+        c === "single"
+          ? { mode: sMode, plan: sPlan }
+          : { mode: payMode, plan: gPlan };
+      const ctxTotal = (c) =>
+        c === "single" ? Number(saleSold.value) || 0 : groupTotal();
+      const ctxNotify = (c, m) =>
+        c === "single" ? showNotice(m, "error") : gShow(m, "error");
+      const ctxBox = (c) =>
+        document.getElementById(
+          c === "single" ? "sPlanSummary" : "gPlanSummary",
+        );
+      let draft = null; // plan being edited in the modal
+      let planTotal = 0;
+
+      function groupTotal() {
+        let t = 0;
+        for (const tr of gLines.querySelectorAll("tr.line"))
+          t +=
+            toNum(tr.querySelector(".l-qty").value) *
+            toNum(tr.querySelector(".l-sold").value);
+        return t;
+      }
+
+      function pShow(message, type = "error") {
+        pNotice.textContent = message;
+        pNotice.className = `notice show ${type}`;
+        clearTimeout(pShow.t);
+        pShow.t = setTimeout(() => (pNotice.className = "notice"), 3500);
+      }
+
+      function regenerate() {
+        const down = Math.min(Math.max(0, Number(draft.down) || 0), planTotal);
+        const remain = planTotal - down;
+        const first = jalaliToYmd(draft.firstJ);
+        const n = Number(draft.count);
+        draft.rows = [];
+        if (!first || !(remain > 0) || !Number.isInteger(n) || n < 1 || n > 60)
+          return;
+        const firstMs = ymdToMs(first);
+        const kind = draft.every[0];
+        const step = Number(draft.every.slice(1));
+        const each = Math.floor(remain / n);
+        for (let i = 0; i < n; i++) {
+          const ms =
+            kind === "m"
+              ? addJalaliMonths(firstMs, i * step)
+              : firstMs + i * step * DAY;
+          draft.rows.push({
+            id: uuid(),
+            dueJ: msToJalali(ms),
+            amount: i === n - 1 ? remain - each * (n - 1) : each,
+          });
+        }
+      }
+
+      function planSums() {
+        const down = Math.min(Math.max(0, Number(draft.down) || 0), planTotal);
+        const rowsSum = draft.rows.reduce(
+          (s, r) => s + (Number(r.amount) || 0),
+          0,
+        );
+        return { down, rowsSum, left: planTotal - down - rowsSum };
+      }
+
+      function renderPlanTiles() {
+        const s = planSums();
+        document.getElementById("pTotal").textContent =
+          `${money(planTotal)} Toman`;
+        document.getElementById("pDownTile").textContent =
+          `${money(s.down)} Toman`;
+        document.getElementById("pInstTile").textContent =
+          `${money(s.rowsSum)} Toman`;
+        let text;
+        let cls = "hint";
+        if (Number(draft.down) > planTotal) {
+          text = "Down payment can't be more than the invoice total.";
+          cls += " bad";
+        } else if (!draft.rows.length) {
+          text = "Enter the first due date and a number of installments.";
+        } else if (Math.abs(s.left) <= 0.5) {
+          text = "Schedule matches the invoice total.";
+          cls += " match";
+        } else if (s.left > 0) {
+          text = `${money(s.left)} Toman still to allocate.`;
+          cls += " bad";
+        } else {
+          text = `Over the invoice total by ${money(-s.left)} Toman.`;
+          cls += " bad";
+        }
+        pSumHint.textContent = text;
+        pSumHint.className = cls;
+      }
+
+      function renderPlanRows() {
+        const s = planSums();
+        let n = 0;
+        let html = "";
+        if (s.down > 0) {
+          n++;
+          html += `<tr><td>${n}</td><td>Today <span class="tag tag-stock">Down payment · paid</span></td><td class="num">${money(s.down)}</td><td></td></tr>`;
+        }
+        for (const r of draft.rows) {
+          n++;
+          const bad = r.dueJ && !jalaliToYmd(r.dueJ);
+          html += `<tr data-rid="${r.id}">
+      <td>${n}</td>
+      <td><input type="text" inputmode="numeric" data-f="dueJ" value="${escapeHtml(r.dueJ)}" placeholder="1405/08/01" maxlength="10" class="${bad ? "invalid" : ""}" />
+        <div class="hint p-hint">${ymdHint(r.dueJ)}</div></td>
+      <td><input type="number" min="0" step="any" data-f="amount" value="${r.amount}" /></td>
+      <td><button type="button" class="button button-danger button-small" data-rm="${r.id}">&times;</button></td>
+    </tr>`;
+        }
+        pRows.innerHTML =
+          html ||
+          '<tr><td colspan="4" class="hint">No installments yet.</td></tr>';
+        pResplit.style.display = draft.custom ? "inline-block" : "none";
+        renderPlanTiles();
+      }
+
+      function onPlanSettings() {
+        draft.down = Number(pDown.value) || 0;
+        draft.count = Number(pCount.value);
+        draft.every = pEvery.value;
+        draft.firstJ = pFirst.value;
+        draft.custom = false;
+        pFirstHint.textContent = ymdHint(pFirst.value);
+        regenerate();
+        renderPlanRows();
+      }
+      [pDown, pCount, pFirst].forEach((el) =>
+        el.addEventListener("input", onPlanSettings),
+      );
+      pEvery.addEventListener("change", onPlanSettings);
+
+      document.getElementById("pChips").addEventListener("click", (e) => {
+        const b = e.target.closest("[data-pct]");
+        if (!b) return;
+        pDown.value = Math.round((planTotal * Number(b.dataset.pct)) / 100);
+        onPlanSettings();
+      });
+      document.getElementById("pCountChips").addEventListener("click", (e) => {
+        const b = e.target.closest("[data-n]");
+        if (!b) return;
+        pCount.value = b.dataset.n;
+        onPlanSettings();
+      });
+
+      pRows.addEventListener("input", (e) => {
+        const tr = e.target.closest("tr[data-rid]");
+        const f = e.target.dataset.f;
+        if (!tr || !f) return;
+        const r = draft.rows.find((x) => x.id === tr.dataset.rid);
+        if (!r) return;
+        if (f === "amount") r.amount = Number(e.target.value) || 0;
+        else {
+          r.dueJ = e.target.value;
+          tr.querySelector(".p-hint").textContent = ymdHint(r.dueJ);
+          e.target.classList.toggle(
+            "invalid",
+            !!r.dueJ && !jalaliToYmd(r.dueJ),
+          );
+        }
+        draft.custom = true;
+        pResplit.style.display = "inline-block";
+        renderPlanTiles();
+      });
+      pRows.addEventListener("click", (e) => {
+        const b = e.target.closest("[data-rm]");
+        if (!b) return;
+        draft.rows = draft.rows.filter((r) => r.id !== b.dataset.rm);
+        draft.custom = true;
+        renderPlanRows();
+      });
+      document.getElementById("pAddRow").addEventListener("click", () => {
+        draft.rows.push({
+          id: uuid(),
+          dueJ: "",
+          amount: Math.max(0, planSums().left),
+        });
+        draft.custom = true;
+        renderPlanRows();
+      });
+      pResplit.addEventListener("click", () => {
+        draft.custom = false;
+        regenerate();
+        renderPlanRows();
+      });
+
+      function openPlan(ctx = "group") {
+        planCtx = ctx;
+        planTotal = ctxTotal(ctx);
+        if (planTotal <= 0) {
+          ctxNotify(
+            ctx,
+            ctx === "single"
+              ? "Enter the sold amount before setting up installments."
+              : "Add items with prices before setting up installments.",
+          );
+          setPayMode("full", ctx);
+          return;
+        }
+        const existing = ctxGet(ctx).plan;
+        draft = existing
+          ? JSON.parse(JSON.stringify(existing))
+          : {
+              down: 0,
+              count: 3,
+              every: "m1",
+              custom: false,
+              rows: [],
+              firstJ: msToJalali(addJalaliMonths(ymdToMs(todayYmd()), 1)),
+            };
+        if (existing && Math.abs(existing.total - planTotal) > 0.5) {
+          draft.custom = false;
+          draft.down = Math.min(draft.down, planTotal);
+        }
+        pDown.value = draft.down;
+        pCount.value = draft.count;
+        pEvery.value = draft.every;
+        pFirst.value = draft.firstJ;
+        pFirstHint.textContent = ymdHint(draft.firstJ);
+        if (!draft.custom) regenerate();
+        pNotice.className = "notice";
+        renderPlanRows();
+        pBackdrop.classList.add("show");
+      }
+
+      function closePlan() {
+        pBackdrop.classList.remove("show");
+        if (!ctxGet(planCtx).plan) setPayMode("full", planCtx);
+      }
+      function savePlan() {
+        const total = planTotal;
+        const down = Number(draft.down) || 0;
+        if (down < 0 || down >= total)
+          return pShow(
+            'Down payment must be below the invoice total. For full payment, use "Paid in full".',
+          );
+        if (!draft.rows.length) return pShow("Add at least one installment.");
+        const rows = [];
+        for (let i = 0; i < draft.rows.length; i++) {
+          const r = draft.rows[i];
+          const ymd = jalaliToYmd(r.dueJ);
+          if (!ymd)
+            return pShow(
+              `Installment ${i + 1 + (down > 0 ? 1 : 0)}: enter a valid date like 1405/08/01.`,
+            );
+          if (!(Number(r.amount) > 0))
+            return pShow(
+              `Installment ${i + 1 + (down > 0 ? 1 : 0)}: enter an amount above 0.`,
+            );
+          rows.push({
+            id: r.id,
+            dueJ: msToJalali(ymdToMs(ymd)),
+            amount: Number(r.amount),
+            ymd,
+          });
+        }
+        const sum = rows.reduce((s, r) => s + r.amount, 0);
+        if (Math.abs(down + sum - total) > 0.5)
+          return pShow(
+            `Down payment + installments = ${money(down + sum)}, but the invoice total is ${money(total)}.`,
+          );
+        rows.sort((a, b) => (a.ymd < b.ymd ? -1 : a.ymd > b.ymd ? 1 : 0));
+        const saved = {
+          total,
+          down,
+          count: draft.count,
+          every: draft.every,
+          firstJ: draft.firstJ,
+          custom: draft.custom,
+          rows: rows.map(({ id, dueJ, amount }) => ({ id, dueJ, amount })),
+        };
+        if (planCtx === "single") sPlan = saved;
+        else gPlan = saved;
+        pBackdrop.classList.remove("show");
+        renderPlanSummary(planCtx);
+      }
+
+      document.getElementById("planSave").addEventListener("click", savePlan);
+      document
+        .getElementById("planCancel")
+        .addEventListener("click", closePlan);
+      document.getElementById("planClose").addEventListener("click", closePlan);
+      pBackdrop.addEventListener("click", (e) => {
+        if (e.target === pBackdrop) closePlan();
+      });
+
+      function setPayMode(mode, ctx = "group") {
+        if (ctx === "single") sMode = mode;
+        else payMode = mode;
+        document
+          .querySelectorAll(
+            `#${ctx === "single" ? "sPayToggle" : "gPayToggle"} button`,
+          )
+          .forEach((b) => b.classList.toggle("on", b.dataset.pay === mode));
+        if (ctx === "single")
+          document.getElementById("sCustomerField").style.display =
+            mode === "installments" ? "block" : "none";
+        renderPlanSummary(ctx);
+        if (mode === "installments" && !ctxGet(ctx).plan) openPlan(ctx);
+      }
+
+      document.getElementById("sPayToggle").addEventListener("click", (e) => {
+        const b = e.target.closest("[data-pay]");
+        if (b) setPayMode(b.dataset.pay, "single");
+      });
+      const onPlanEdit = (e) => {
+        const b = e.target.closest("[data-plan-edit]");
+        if (b) openPlan(b.dataset.planEdit);
+      };
+      document.getElementById("gPayToggle").addEventListener("click", (e) => {
+        const b = e.target.closest("[data-pay]");
+        if (b) setPayMode(b.dataset.pay);
+      });
+      document
+        .getElementById("gPlanSummary")
+        .addEventListener("click", onPlanEdit);
+      document
+        .getElementById("sPlanSummary")
+        .addEventListener("click", onPlanEdit);
+      saleSold.addEventListener("input", () => renderPlanSummary("single"));
+      // Customer picker for the single-sale form
+      const sCustomer = document.getElementById("sCustomer");
+      const sCustomerList = document.getElementById("sCustomerList");
+      function renderSCustomerPicker() {
+        const q = norm(sCustomer.value);
+        const all = load(CONTACTS_KEY);
+        const list = all.filter((c) =>
+          norm(`${c.name} ${c.phone || ""}`).includes(q),
+        );
+        sCustomerList.innerHTML = !all.length
+          ? '<div class="picker-empty">No contacts saved yet. You can still type a name.</div>'
+          : list.length
+            ? list
+                .slice(0, 50)
+                .map(
+                  (c) =>
+                    `<div class="picker-item" data-id="${escapeHtml(c.id)}"><span>${escapeHtml(c.name)}</span><small>${CONTACT_LABELS[c.category] || ""}</small></div>`,
+                )
+                .join("")
+            : '<div class="picker-empty">No match. The name will be used as typed.</div>';
+        sCustomerList.classList.add("show");
+      }
+      sCustomer.addEventListener("focus", renderSCustomerPicker);
+      sCustomer.addEventListener("input", renderSCustomerPicker);
+      sCustomerList.addEventListener("mousedown", (e) => {
+        const item = e.target.closest(".picker-item");
+        if (!item) return;
+        e.preventDefault();
+        const c = load(CONTACTS_KEY).find((x) => x.id === item.dataset.id);
+        if (c) sCustomer.value = c.name;
+        sCustomerList.classList.remove("show");
+      });
+
+      function renderPlanSummary(ctx = "group") {
+        const box = ctxBox(ctx);
+        const { mode, plan } = ctxGet(ctx);
+        if (mode !== "installments" || !plan) {
+          box.style.display = "none";
+          return;
+        }
+        const stale = Math.abs(plan.total - ctxTotal(ctx)) > 0.5;
+        const amounts = plan.rows.map((r) => r.amount);
+        const lo = Math.min(...amounts);
+        const hi = Math.max(...amounts);
+        const each = lo === hi ? money(lo) : `${money(lo)} – ${money(hi)}`;
+        box.className = "plan-summary" + (stale ? " stale" : "");
+        box.style.display = "block";
+        box.innerHTML = `
+    <div class="plan-summary-grid">
+      <div><div class="k">Down payment (today)</div><div class="v">${money(plan.down)} Toman</div></div>
+      <div><div class="k">${plan.rows.length} installment${plan.rows.length === 1 ? "" : "s"}, each</div><div class="v">${each} Toman</div></div>
+      <div><div class="k">First → last due</div><div class="v">${escapeHtml(plan.rows[0].dueJ)} → ${escapeHtml(plan.rows[plan.rows.length - 1].dueJ)}</div></div>
+    </div>
+    ${stale ? '<p class="hint bad">The total changed. Review the plan before recording.</p>' : ""}
+    <button type="button" class="button button-secondary button-small" data-plan-edit="${ctx}">Edit installment plan</button>`;
+      }
+      // Receivable record, same shape the Receivables page uses
+      function buildReceivable({ customer, notes, source, plan }) {
+        const todayIso = ymdToIso(todayYmd());
+        const installments = [];
+        if (plan.down > 0)
+          installments.push({
+            id: uuid(),
+            label: "Down payment",
+            dueDate: todayIso,
+            amount: plan.down,
+            paid: plan.down,
+          });
+        for (const r of plan.rows)
+          installments.push({
+            id: uuid(),
+            label: "",
+            dueDate: ymdToIso(jalaliToYmd(r.dueJ)),
+            amount: Number(r.amount),
+            paid: 0,
+          });
+        installments.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
+        return {
+          id: uuid(),
+          name: customer,
+          amountOwed: plan.total,
+          amountPaid: plan.down,
+          date: todayIso,
+          notes,
+          history: [],
+          dueDate: null,
+          installments,
+          source,
+        };
+      }
+      const installmentInv = (id) => {
+        const inv = load(INVOICES_KEY).find((i) => i.id === id);
+        return !!(inv && inv.payment && inv.payment.type === "installments");
+      };
+      // Keep in sync if the inventory or rate changes in another tab.
+      window.addEventListener("storage", () => {
+        renderPicker();
+        updateHint();
+        renderSales();
+      });
+
+      renderPicker();
+      renderSales();
+    </script>
+  </body>
+</html>

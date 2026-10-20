@@ -1,0 +1,512 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <link rel="stylesheet" href="index.css" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Contacts</title>
+    <style>
+      :root {
+        --bg: #f5f7fb;
+        --card: #fff;
+        --text: #18202a;
+        --muted: #6b7280;
+        --border: #e5e7eb;
+        --primary: #2563eb;
+        --primary-hover: #1d4ed8;
+        --danger: #dc2626;
+        --shadow: 0 10px 30px rgba(15, 23, 42, 0.07);
+        --radius: 16px;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family:
+          Inter,
+          system-ui,
+          -apple-system,
+          "Segoe UI",
+          sans-serif;
+        background: var(--bg);
+        color: var(--text);
+      }
+
+      h1 {
+        margin: 0 0 6px;
+        font-size: clamp(28px, 5vw, 40px);
+        letter-spacing: -0.03em;
+      }
+      .subtitle {
+        margin: 0 0 24px;
+        color: var(--muted);
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: 330px 1fr;
+        gap: 20px;
+        align-items: start;
+      }
+      .card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+      }
+      .form-card {
+        padding: 20px;
+        position: sticky;
+        top: 20px;
+      }
+      h2 {
+        margin: 0 0 16px;
+        font-size: 18px;
+      }
+      .field {
+        margin-bottom: 14px;
+      }
+      label {
+        display: block;
+        margin-bottom: 7px;
+        font-size: 14px;
+        font-weight: 600;
+      }
+      input,
+      select,
+      textarea,
+      button {
+        font: inherit;
+      }
+      input[type="text"],
+      input[type="search"],
+      select,
+      textarea {
+        width: 100%;
+        border: 1px solid #d1d5db;
+        border-radius: 10px;
+        padding: 11px 12px;
+        background: #fff;
+        color: var(--text);
+        outline: none;
+      }
+      textarea {
+        resize: vertical;
+        min-height: 70px;
+      }
+      input:focus,
+      select:focus,
+      textarea:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+      }
+      .button {
+        border: 0;
+        border-radius: 10px;
+        padding: 11px 14px;
+        cursor: pointer;
+        font-weight: 700;
+        transition: 0.15s ease;
+      }
+      .button-primary {
+        width: 100%;
+        background: var(--primary);
+        color: #fff;
+      }
+      .button-primary:hover {
+        background: var(--primary-hover);
+      }
+      .button-secondary {
+        background: #eef2ff;
+        color: #3730a3;
+      }
+      .button-secondary:hover {
+        background: #e0e7ff;
+      }
+      .button-danger {
+        background: #fee2e2;
+        color: var(--danger);
+      }
+      .button-danger:hover {
+        background: #fecaca;
+      }
+      .button-small {
+        padding: 8px 10px;
+        font-size: 13px;
+      }
+      .list-card {
+        overflow: hidden;
+      }
+      .top {
+        padding: 18px 20px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        gap: 14px;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .tabs {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        padding: 14px 20px;
+        border-bottom: 1px solid var(--border);
+      }
+      .tab {
+        border: 1px solid var(--border);
+        background: #fff;
+        border-radius: 999px;
+        padding: 7px 14px;
+        font-size: 13px;
+        font-weight: 700;
+        cursor: pointer;
+        color: var(--muted);
+      }
+      .tab.active {
+        background: var(--primary);
+        border-color: var(--primary);
+        color: #fff;
+      }
+      .table-wrap {
+        overflow-x: auto;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 640px;
+      }
+      th,
+      td {
+        padding: 14px 20px;
+        text-align: left;
+        border-bottom: 1px solid var(--border);
+        vertical-align: middle;
+      }
+      th {
+        background: #fafafa;
+        font-size: 13px;
+        color: var(--muted);
+      }
+      tbody tr:last-child td {
+        border-bottom: 0;
+      }
+      .name {
+        font-weight: 700;
+      }
+      .note {
+        color: var(--muted);
+        font-size: 13px;
+        max-width: 260px;
+      }
+      .badge {
+        display: inline-block;
+        padding: 3px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 700;
+        background: #eef2ff;
+        color: #3730a3;
+      }
+      .actions {
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+      }
+      .empty {
+        padding: 44px 20px;
+        text-align: center;
+        color: var(--muted);
+      }
+      .footer-actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 10px;
+      }
+      .footer-actions .button {
+        flex: 1;
+      }
+      @media (max-width: 820px) {
+        .grid {
+          grid-template-columns: 1fr;
+        }
+        .form-card {
+          position: static;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="container">
+      <nav class="nav">
+        <a href="index.html">Inventory</a>
+        <a href="sales.html">Sales Log</a>
+        <a href="expenses.html">Expenses</a>
+        <a href="receivables.html">Receivables</a>
+        <a href="payables.html">Payables</a>
+        <a href="todo.html">Todo</a>
+        <a href="contacts.html" class="active">Contacts</a>
+      </nav>
+      <header>
+        <h1>Contacts</h1>
+        <p class="subtitle">
+          Partners, suppliers, and customers — saved automatically in your
+          browser.
+        </p>
+      </header>
+
+      <section class="grid">
+        <aside class="card form-card">
+          <h2 id="formTitle">Add Contact</h2>
+          <form id="form">
+            <div class="field">
+              <label for="name">Name</label>
+              <input id="name" type="text" maxlength="100" required />
+            </div>
+            <div class="field">
+              <label for="phone">Phone</label>
+              <input id="phone" type="text" maxlength="40" />
+            </div>
+            <div class="field">
+              <label for="category">Category</label>
+              <select id="category">
+                <option value="partner">Partner — همکار</option>
+                <option value="supplier">Supplier — تامین‌کننده</option>
+                <option value="regular">Regular customer — مشتری عادی</option>
+                <option value="special">Special customer — مشتری ویژه</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="notes"
+                >Notes
+                <span style="font-weight: 400; color: var(--muted)"
+                  >(optional)</span
+                ></label
+              >
+              <textarea id="notes" maxlength="300"></textarea>
+            </div>
+            <button
+              class="button button-primary"
+              type="submit"
+              id="submitButton"
+            >
+              Add Contact
+            </button>
+          </form>
+          <div class="footer-actions">
+            <button
+              class="button button-secondary"
+              id="exportButton"
+              type="button"
+            >
+              Export JSON
+            </button>
+            <button class="button button-danger" id="clearButton" type="button">
+              Clear All
+            </button>
+          </div>
+        </aside>
+
+        <section class="card list-card">
+          <div class="top">
+            <h2 style="margin: 0">All contacts</h2>
+            <input
+              id="search"
+              type="search"
+              placeholder="Search name, phone, notes..."
+              style="width: min(320px, 100%)"
+            />
+          </div>
+          <div class="tabs" id="tabs"></div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Phone</th>
+                  <th>Category</th>
+                  <th>Notes</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="body"></tbody>
+            </table>
+          </div>
+          <div id="empty" class="empty"></div>
+        </section>
+      </section>
+    </main>
+
+    <script>
+      const KEY = "contacts-manager-v1";
+      const CATS = {
+        partner: "Partners",
+        supplier: "Suppliers",
+        regular: "Regular customers",
+        special: "Special customers",
+      };
+
+      const $ = (id) => document.getElementById(id);
+      const form = $("form"),
+        nameEl = $("name"),
+        phoneEl = $("phone"),
+        catEl = $("category"),
+        notesEl = $("notes");
+      let contacts = load();
+      let activeTab = "all";
+      let editingId = null;
+
+      function load() {
+        try {
+          const p = JSON.parse(localStorage.getItem(KEY) || "[]");
+          return Array.isArray(p) ? p : [];
+        } catch (e) {
+          return [];
+        }
+      }
+      function save() {
+        localStorage.setItem(KEY, JSON.stringify(contacts));
+      }
+      function esc(v) {
+        return String(v)
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#039;");
+      }
+
+      function renderTabs() {
+        const count = (k) => contacts.filter((c) => c.category === k).length;
+        const tabs = [
+          ["all", `All (${contacts.length})`],
+          ...Object.entries(CATS).map(([k, v]) => [k, `${v} (${count(k)})`]),
+        ];
+        $("tabs").innerHTML = tabs
+          .map(
+            ([k, label]) =>
+              `<button type="button" class="tab ${k === activeTab ? "active" : ""}" data-tab="${k}">${label}</button>`,
+          )
+          .join("");
+      }
+
+      function render() {
+        const q = $("search").value.trim().toLowerCase();
+        const list = contacts.filter(
+          (c) =>
+            (activeTab === "all" || c.category === activeTab) &&
+            `${c.name} ${c.phone} ${c.notes}`.toLowerCase().includes(q),
+        );
+
+        $("body").innerHTML = list
+          .map(
+            (c) => `
+          <tr>
+            <td class="name">${esc(c.name)}</td>
+            <td>${esc(c.phone || "—")}</td>
+            <td><span class="badge">${CATS[c.category] || "—"}</span></td>
+            <td class="note">${esc(c.notes || "")}</td>
+            <td><div class="actions">
+              <button class="button button-secondary button-small" data-action="edit" data-id="${c.id}" type="button">Edit</button>
+              <button class="button button-danger button-small" data-action="delete" data-id="${c.id}" type="button">Delete</button>
+            </div></td>
+          </tr>`,
+          )
+          .join("");
+
+        $("empty").style.display = list.length ? "none" : "block";
+        $("empty").textContent = contacts.length
+          ? "No matching contacts."
+          : "No contacts yet. Add your first one using the form.";
+        renderTabs();
+      }
+
+      function resetForm() {
+        form.reset();
+        editingId = null;
+        $("formTitle").textContent = "Add Contact";
+        $("submitButton").textContent = "Add Contact";
+      }
+
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const data = {
+          name: nameEl.value.trim(),
+          phone: phoneEl.value.trim(),
+          category: catEl.value,
+          notes: notesEl.value.trim(),
+        };
+        if (!data.name) return;
+
+        if (editingId) {
+          Object.assign(contacts.find((c) => c.id === editingId) || {}, data);
+        } else {
+          contacts.push({
+            id: crypto.randomUUID
+              ? crypto.randomUUID()
+              : `${Date.now()}-${Math.random()}`,
+            ...data,
+          });
+        }
+        save();
+        render();
+        resetForm();
+      });
+
+      $("tabs").addEventListener("click", (e) => {
+        const b = e.target.closest("[data-tab]");
+        if (!b) return;
+        activeTab = b.dataset.tab;
+        render();
+      });
+
+      $("body").addEventListener("click", (e) => {
+        const b = e.target.closest("[data-action]");
+        if (!b) return;
+        const c = contacts.find((x) => x.id === b.dataset.id);
+        if (!c) return;
+
+        if (b.dataset.action === "delete") {
+          if (!confirm(`Delete "${c.name}"?`)) return;
+          contacts = contacts.filter((x) => x.id !== c.id);
+          if (editingId === c.id) resetForm();
+          save();
+          render();
+        } else {
+          editingId = c.id;
+          nameEl.value = c.name;
+          phoneEl.value = c.phone || "";
+          catEl.value = c.category;
+          notesEl.value = c.notes || "";
+          $("formTitle").textContent = "Edit Contact";
+          $("submitButton").textContent = "Save Changes";
+          nameEl.focus();
+        }
+      });
+
+      $("search").addEventListener("input", render);
+
+      $("clearButton").addEventListener("click", () => {
+        if (!contacts.length || !confirm("Delete every contact?")) return;
+        contacts = [];
+        save();
+        render();
+        resetForm();
+      });
+
+      $("exportButton").addEventListener("click", () => {
+        const blob = new Blob([JSON.stringify(contacts, null, 2)], {
+          type: "application/json",
+        });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `contacts-${new Date().toISOString().slice(0, 10)}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+      });
+
+      render();
+    </script>
+  </body>
+</html>

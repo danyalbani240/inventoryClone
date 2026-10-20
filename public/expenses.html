@@ -1,0 +1,425 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <link rel="stylesheet" href="./css/expenses.css" />
+
+    <link rel="stylesheet" href="./index.css" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Expenses</title>
+  </head>
+  <body>
+    <main class="container">
+      <nav class="nav">
+        <a href="index.html">Inventory</a>
+        <a href="sales.html">Sales Log</a>
+        <a href="expenses.html" class="active">Expenses</a>
+        <a href="receivables.html">Receivables</a>
+        <a href="payables.html">Payables</a>
+      </nav>
+
+      <header>
+        <h1>Expenses</h1>
+        <p class="subtitle">
+          Log what the shop buys, and manage purchase invoices from suppliers.
+        </p>
+      </header>
+
+      <section class="grid">
+        <aside class="card form-card">
+          <h2>Add Expense</h2>
+          <form id="expenseForm" autocomplete="off">
+            <div class="field">
+              <label for="expItem">What was bought</label>
+              <input
+                id="expItem"
+                type="text"
+                maxlength="150"
+                placeholder="e.g. Spray gun nozzles"
+                required
+              />
+            </div>
+            <div class="field">
+              <label for="expType">Expense type</label>
+              <select id="expType" class="select">
+                <option value="operating">
+                  Operating Expense (rent, electricity… paid from profit)
+                </option>
+                <option value="purchase">
+                  Purchasing &amp; Shipping (not from profit)
+                </option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="expCost">Cost (Toman)</label>
+              <input
+                id="expCost"
+                type="number"
+                step="any"
+                min="0"
+                placeholder="e.g. 1,200,000"
+                required
+              />
+            </div>
+            <div class="field">
+              <label for="expShipping">Shipping (Toman)</label>
+              <input
+                id="expShipping"
+                type="number"
+                step="any"
+                min="0"
+                placeholder="e.g. 80,000"
+                value="0"
+              />
+            </div>
+            <div class="totalRow">
+              <span>Total</span>
+              <span id="expTotalPreview">0 Toman</span>
+            </div>
+            <div class="field">
+              <label for="expNotes">Notes (optional)</label>
+              <textarea
+                id="expNotes"
+                rows="3"
+                maxlength="500"
+                placeholder="Supplier, order #, reason..."
+              ></textarea>
+            </div>
+            <div class="field">
+              <label for="expPhoto">Receipt photo (optional)</label>
+              <input id="expPhoto" type="file" accept="image/*" />
+              <p class="hint">
+                Photos are resized and stored in your browser. You can also
+                paste one into Notes.
+              </p>
+              <div class="photo-preview" id="photoPreview">
+                <img id="photoImg" alt="Selected photo" />
+                <button
+                  class="button button-danger button-small"
+                  type="button"
+                  id="photoRemove"
+                >
+                  Remove
+                </button>
+              </div>
+            </div>
+            <button class="button button-primary" type="submit">
+              Add Expense
+            </button>
+            <div id="notice" class="notice"></div>
+          </form>
+          <p class="hint" style="margin-top: 14px">
+            Buying from a supplier with items to receive later? Use
+            <strong>Purchase Invoices</strong> on the right instead — it keeps
+            the expense and the inventory receipt in sync.
+          </p>
+        </aside>
+
+        <div>
+          <section class="card">
+            <div class="stats">
+              <div class="stat">
+                <div class="stat-label">Today</div>
+                <div class="stat-value" id="spentToday">0</div>
+                <div class="stat-sub" id="countToday">0 entries</div>
+              </div>
+              <div class="stat">
+                <div class="stat-label">This week</div>
+                <div class="stat-value" id="spentWeek">0</div>
+                <div class="stat-sub" id="countWeek">0 entries</div>
+              </div>
+              <div class="stat">
+                <div class="stat-label">This month</div>
+                <div class="stat-value" id="spentMonth">0</div>
+                <div class="stat-sub" id="countMonth">0 entries</div>
+              </div>
+              <div class="stat">
+                <div class="stat-label">All time</div>
+                <div class="stat-value" id="spentTotal">0</div>
+                <div class="stat-sub" id="countTotal">0 entries</div>
+              </div>
+            </div>
+
+            <div class="panel-head"><h2>Expenses</h2></div>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Item</th>
+                    <th>Cost</th>
+                    <th>Shipping</th>
+                    <th>Total</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="expBody"></tbody>
+              </table>
+            </div>
+            <div id="emptyState" class="empty">
+              <strong>No expenses yet</strong>
+              Add your first purchase using the form.
+            </div>
+          </section>
+
+          <section class="card">
+            <div class="panel-head">
+              <div>
+                <h2>Purchase Invoices</h2>
+                <p>
+                  Create an invoice as soon as you buy from a supplier — even
+                  before the goods arrive. Receive items into inventory later,
+                  from the same invoice.
+                </p>
+              </div>
+              <button
+                class="button button-primary"
+                type="button"
+                id="newInvoiceBtn"
+                style="width: auto"
+              >
+                + New Invoice
+              </button>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Invoice</th>
+                    <th>Supplier</th>
+                    <th>Date</th>
+                    <th>Items</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="invoicesBody"></tbody>
+              </table>
+            </div>
+            <div id="invoicesEmptyState" class="empty">
+              <strong>No purchase invoices yet</strong>
+              Create one when you order from a supplier.
+            </div>
+          </section>
+        </div>
+      </section>
+    </main>
+
+    <!-- Manual expense: Details modal -->
+    <div class="modal-backdrop" id="detailBackdrop">
+      <div class="modal">
+        <div class="modal-head">
+          <h2>Expense details</h2>
+          <button class="modal-close" type="button" id="detailClose">
+            &times;
+          </button>
+        </div>
+        <div class="modal-body" id="detailBody"></div>
+        <div class="modal-footer">
+          <button
+            class="button button-secondary"
+            type="button"
+            id="detailEditBtn"
+          >
+            Edit
+          </button>
+          <button class="button button-primary" type="button" id="detailOk">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Manual expense: Edit modal -->
+    <div class="modal-backdrop" id="editBackdrop">
+      <div class="modal">
+        <div class="modal-head">
+          <h2>Edit expense</h2>
+          <button class="modal-close" type="button" id="editClose">
+            &times;
+          </button>
+        </div>
+        <form id="editForm">
+          <div class="modal-body">
+            <div class="field">
+              <label for="editItem">What was bought</label>
+              <input id="editItem" type="text" maxlength="150" required />
+            </div>
+            <div class="field">
+              <label for="editType">Expense type</label>
+              <select id="editType" class="select">
+                <option value="operating">
+                  Operating Expense (paid from profit)
+                </option>
+                <option value="purchase">
+                  Purchasing &amp; Shipping (not from profit)
+                </option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="editCost">Cost (Toman)</label>
+              <input id="editCost" type="number" step="any" min="0" required />
+            </div>
+            <div class="field">
+              <label for="editShipping">Shipping (Toman)</label>
+              <input
+                id="editShipping"
+                type="number"
+                step="any"
+                min="0"
+                required
+              />
+            </div>
+            <div class="field">
+              <label for="editNotes">Notes</label>
+              <textarea id="editNotes" rows="3" maxlength="500"></textarea>
+            </div>
+            <div class="field">
+              <label for="editPhoto">Replace receipt photo (optional)</label>
+              <input id="editPhoto" type="file" accept="image/*" />
+              <p class="hint">Leave empty to keep the current photo.</p>
+              <div class="photo-preview" id="editPhotoPreview">
+                <img id="editPhotoImg" alt="Selected photo" />
+                <button
+                  class="button button-danger button-small"
+                  type="button"
+                  id="editPhotoRemove"
+                >
+                  Remove
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button
+              class="button button-secondary"
+              type="button"
+              id="editCancel"
+            >
+              Cancel
+            </button>
+            <button class="button button-primary" type="submit">
+              Save changes
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Purchase Invoice modal (create + manage) -->
+    <div class="modal-backdrop" id="invoiceBackdrop">
+      <div class="modal modal-wide">
+        <div class="modal-head">
+          <h2 id="invoiceModalTitle">New Purchase Invoice</h2>
+          <button class="modal-close" type="button" id="invoiceClose">
+            &times;
+          </button>
+        </div>
+        <div class="modal-body">
+          <div id="invoiceStatusRow" style="margin-bottom: 14px; display: none">
+            Status: <span id="invoiceStatusBadge" class="status-badge"></span>
+          </div>
+          <div class="two-col">
+            <div class="field">
+              <label for="invSupplier">Supplier / company</label>
+              <input id="invSupplier" type="text" maxlength="150" required />
+            </div>
+            <div class="field">
+              <label for="invNumber">Invoice number (optional)</label>
+              <input id="invNumber" type="text" maxlength="80" />
+            </div>
+          </div>
+          <div class="two-col">
+            <div class="field">
+              <label for="invDate">Invoice date</label>
+              <input id="invDate" type="date" required />
+            </div>
+            <div class="field">
+              <label for="invShipping"
+                >Shipping cost (Toman, may be unknown yet)</label
+              >
+              <input
+                id="invShipping"
+                type="number"
+                step="any"
+                min="0"
+                placeholder="Leave blank if unknown"
+              />
+            </div>
+          </div>
+          <div class="field">
+            <label for="invNotes">Notes (optional)</label>
+            <textarea id="invNotes" rows="2" maxlength="500"></textarea>
+          </div>
+
+          <h3 style="margin: 18px 0 8px; font-size: 15px">Items</h3>
+          <div class="table-wrap">
+            <table class="invoice-items-table" id="invoiceItemsTable">
+              <thead>
+                <tr>
+                  <th>Product</th>
+                  <th class="qty-col">Qty</th>
+                  <th class="price-col">Purchase — قیمت خرید</th>
+                  <th class="price-col">Customer — قیمت فروش به مشتری</th>
+                  <th class="price-col">Partner — قیمت فروش به همکار</th>
+                  <th class="receive-col qty-col">Received</th>
+                  <th class="receive-col">Added</th>
+                  <th class="receive-col"></th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="invoiceItemsBody"></tbody>
+            </table>
+          </div>
+          <datalist id="productsDatalist"></datalist>
+          <button
+            class="button button-secondary button-small"
+            type="button"
+            id="addInvoiceItemBtn"
+            style="margin-top: 10px"
+          >
+            + Add item
+          </button>
+
+          <div class="invoice-summary">
+            <span>Goods: <strong id="invGoodsPreview">0 Toman</strong></span>
+            <span
+              >Shipping: <strong id="invShippingPreview">0 Toman</strong></span
+            >
+            <span>Total: <strong id="invTotalPreview">0 Toman</strong></span>
+          </div>
+          <div id="invoiceNotice" class="notice"></div>
+        </div>
+        <div class="modal-footer">
+          <button
+            class="button button-secondary"
+            type="button"
+            id="receiveAllBtn"
+            style="display: none"
+          >
+            Receive all remaining
+          </button>
+          <span class="spacer"></span>
+          <button
+            class="button button-secondary"
+            type="button"
+            id="invoiceCancel"
+          >
+            Cancel
+          </button>
+          <button
+            class="button button-primary"
+            type="button"
+            id="invoiceSaveBtn"
+            style="width: auto"
+          >
+            Save Invoice
+          </button>
+        </div>
+      </div>
+    </div>
+    <script src="js/expenses.js"></script>
+  </body>
+</html>
