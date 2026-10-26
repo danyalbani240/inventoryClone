@@ -416,6 +416,24 @@
         color: #1e40af;
       }
 
+      .link-badge {
+        display: inline-block;
+        padding: 1px 6px;
+        border-radius: 6px;
+        font-size: 11px;
+        font-weight: 600;
+        background: #e2e8f0;
+        color: #334155;
+        text-decoration: none;
+        margin-right: 4px;
+        margin-top: 2px;
+        transition: background 0.15s ease;
+      }
+      .link-badge:hover {
+        background: #cbd5e1;
+        color: #0f172a;
+      }
+
       @media (max-width: 820px) {
         .grid {
           grid-template-columns: 1fr;
@@ -504,6 +522,14 @@
           </button>
           <button
             class="button button-secondary button-small"
+            id="fetchSupplierPricesBtn"
+            type="button"
+            style="margin-left: 4px"
+          >
+            Fetch Supplier Prices
+          </button>
+          <button
+            class="button button-secondary button-small"
             id="manualRateButton"
             type="button"
             style="margin-left: 4px"
@@ -511,6 +537,10 @@
             Set manually
           </button>
           <span id="rateStatus" style="margin-left: 8px"></span>
+          <span
+            id="scrapingStatus"
+            style="margin-left: 8px; font-size: 13px; color: var(--muted)"
+          ></span>
         </p>
       </header>
 
@@ -558,7 +588,7 @@
               <label for="productPurchasePrice"
                 >Purchase Price — قیمت خرید
                 <span style="font-weight: 400; color: var(--muted)"
-                  >(optional)</span
+                  >(optional / auto-fetched)</span
                 ></label
               >
               <input
@@ -598,6 +628,28 @@
                 step="0.01"
                 placeholder="Toman — leave blank if not set"
               />
+            </div>
+
+            <!-- Supplier Links (Up to 3 links for scraping buy prices) -->
+            <div class="field">
+              <label>Supplier Links / Sources (Up to 3)</label>
+              <div style="display: flex; flex-direction: column; gap: 6px">
+                <input
+                  id="supplierLink1"
+                  type="text"
+                  placeholder="Link 1 (Website URL)"
+                />
+                <input
+                  id="supplierLink2"
+                  type="text"
+                  placeholder="Link 2 (Optional)"
+                />
+                <input
+                  id="supplierLink3"
+                  type="text"
+                  placeholder="Link 3 (Optional)"
+                />
+              </div>
             </div>
 
             <div class="field">
@@ -676,7 +728,7 @@
             <table>
               <thead>
                 <tr>
-                  <th>Product</th>
+                  <th>Product & Sources</th>
                   <th>Category</th>
                   <th>Live Prices (Buy / Customer / Partner)</th>
                   <th>Added At (Rate · Date)</th>
@@ -750,6 +802,9 @@
       const productPartnerPrice = document.getElementById(
         "productPartnerPrice",
       );
+      const supplierLink1 = document.getElementById("supplierLink1");
+      const supplierLink2 = document.getElementById("supplierLink2");
+      const supplierLink3 = document.getElementById("supplierLink3");
       const productCount = document.getElementById("productCount");
       const inventoryBody = document.getElementById("inventoryBody");
       const emptyState = document.getElementById("emptyState");
@@ -765,20 +820,38 @@
       const exportButton = document.getElementById("exportButton");
       const currentDollarRate = document.getElementById("currentDollarRate");
       const refreshRateButton = document.getElementById("refreshRateButton");
+      const fetchSupplierPricesBtn = document.getElementById(
+        "fetchSupplierPricesBtn",
+      );
+      const scrapingStatus = document.getElementById("scrapingStatus");
       const rateStatus = document.getElementById("rateStatus");
 
       let products = loadProducts();
       migrateProductPricing();
       let editingId = null;
-      // Live prices shown in the form when editing began. Used to detect
-      // whether the user actually changed a price.
       let editingShown = null;
       let currentUsdRateToman = null;
       let currentRateUpdatedAt = null;
 
-      // Prices are STORED in Toman exactly as entered, together with the
-      // dollar rate at that moment (dollarRateAtAdded). The live price is
-      //   stored * currentRate / dollarRateAtAdded
+      // Markup rule configuration: "percent" (e.g. 10%) or "fixed" (e.g. 100000 Toman)
+      const MARKUP_TYPE = "percent";
+      const MARKUP_VALUE = 0.1; // 10% markup (change to 100000 for fixed if preferred)
+      // Round up to the nearest 50,000 Toman
+      function roundToNearest50k(price) {
+        if (!hasValue(price) || price <= 0) return price;
+        return Math.ceil(price / 50000) * 50000;
+      }
+
+      function calculateSellingPrice(buyingPrice) {
+        if (!buyingPrice || buyingPrice <= 0) return null;
+        let calculated =
+          MARKUP_TYPE === "percent"
+            ? buyingPrice * (1 + MARKUP_VALUE)
+            : buyingPrice + MARKUP_VALUE;
+
+        return roundToNearest50k(calculated);
+      }
+
       function migrateProductPricing() {
         let changed = false;
         products = products.map((product) => {
@@ -799,6 +872,10 @@
           }
           if (next.trackDollar === undefined) {
             next.trackDollar = true;
+            changed = true;
+          }
+          if (!Array.isArray(next.supplierLinks)) {
+            next.supplierLinks = [];
             changed = true;
           }
           return next;
@@ -827,17 +904,17 @@
         return Number.isFinite(anchor) && anchor > 0 ? anchor : null;
       }
 
-      // Stored Toman price -> today's Toman price.
       function livePrice(product, base) {
         if (!hasValue(base)) return null;
-        // Tracking off: the price is fixed, whatever the dollar does.
-        if (product.trackDollar === false) return Number(base);
+        if (product.trackDollar === false)
+          return roundToNearest50k(Number(base));
         const anchor = anchorRate(product);
-        if (!currentUsdRateToman || !anchor) return Number(base);
-        return (Number(base) * currentUsdRateToman) / anchor;
+        if (!currentUsdRateToman || !anchor)
+          return roundToNearest50k(Number(base));
+        const rawLive = (Number(base) * currentUsdRateToman) / anchor;
+        return roundToNearest50k(rawLive);
       }
 
-      // Dollar equivalent of a price (at today's rate when it is known).
       function usdValue(product, base) {
         if (!hasValue(base)) return null;
         if (currentUsdRateToman)
@@ -896,7 +973,6 @@
       let rateModalResolver = null;
 
       function parseRateInput(value) {
-        // Accept Persian/Arabic digits and thousand separators
         const normalized = String(value)
           .replace(/[۰-۹]/g, (d) => "۰۱۲۳۴۵۶۷۸۹".indexOf(d))
           .replace(/[٠-٩]/g, (d) => "٠١٢٣٤٥٦٧٨٩".indexOf(d))
@@ -904,6 +980,7 @@
         const num = Number(normalized);
         return Number.isFinite(num) && num > 0 ? num : null;
       }
+
       function applyRate(rate, atIso, manual = false) {
         currentUsdRateToman = rate;
         currentRateUpdatedAt = atIso;
@@ -918,7 +995,6 @@
         currentDollarRate.textContent = `${formatRate(rate)} Toman / USD${manual ? " (manual)" : ""}`;
         rateStatus.textContent = `${formatRate(rate)}-${formatJalali(atIso)}`;
 
-        // Old products without a saved rate get the current one, once.
         const missing = products.filter((p) => !anchorRate(p));
         if (missing.length > 0) {
           products = products.map((p) =>
@@ -938,6 +1014,7 @@
 
         renderProducts();
       }
+
       function closeRateModal(value) {
         rateModal.classList.remove("show");
         const resolve = rateModalResolver;
@@ -945,7 +1022,6 @@
         if (resolve) resolve(value);
       }
 
-      // Resolves with the entered rate, or null if the user skips.
       function askManualRate(reason) {
         if (rateModalResolver) closeRateModal(null);
 
@@ -994,20 +1070,20 @@
         const rate = await askManualRate("Enter the dollar price in Toman.");
         if (rate) applyRate(rate, new Date().toISOString(), true);
       });
+
       async function fetchTgjuRate() {
         const res = await fetch("https://call3.tgju.org/ajax.json", {
           cache: "no-store",
         });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
-
-        // tgju gives Rial, e.g. "2,679,000" -> Toman
         const raw = data?.current?.price_dollar_rl?.p;
         const rate = Number(String(raw).replace(/,/g, "")) / 10;
         if (!Number.isFinite(rate) || rate <= 0)
           throw new Error("Bad tgju rate");
         return rate;
       }
+
       async function fetchCurrentDollarRate() {
         refreshRateButton.disabled = true;
         currentDollarRate.textContent = "Loading...";
@@ -1024,7 +1100,6 @@
               },
             },
           );
-          console.log(response);
 
           if (!response.ok) {
             throw new Error(`HTTP ${response.status}`);
@@ -1037,8 +1112,10 @@
             throw new Error("USD rate was not found in API response.");
           }
 
+          const rate = usd.price ? usd.price / 10 : null;
+
           applyRate(
-            rate,
+            rate || (await fetchTgjuRate()),
             usd.time_unix
               ? new Date(usd.time_unix * 1000).toISOString()
               : new Date().toISOString(),
@@ -1046,9 +1123,6 @@
           return rate;
         } catch (error) {
           console.error("Could not fetch dollar rate:", error);
-          currentDollarRate.textContent = "Unavailable";
-          rateStatus.textContent = "";
-          // 1) tgju fallback
           try {
             const rate = await fetchTgjuRate();
             applyRate(rate, new Date().toISOString());
@@ -1073,6 +1147,66 @@
           refreshRateButton.disabled = false;
         }
       }
+
+      // Fetch Supplier Prices Button Handler
+      fetchSupplierPricesBtn.addEventListener("click", async () => {
+        fetchSupplierPricesBtn.disabled = true;
+        scrapingStatus.textContent = "Fetching supplier prices...";
+
+        let updatedCount = 0;
+        let failedCount = 0;
+
+        for (let product of products) {
+          // Check links in order until a valid buy price is fetched
+          const links = product.supplierLinks || [];
+          let fetchedPrice = null;
+
+          for (let link of links) {
+            if (!link.trim()) continue;
+            try {
+              const cleanUrl = link.startsWith("http")
+                ? link
+                : "https://" + link;
+              const res = await fetch(
+                `/api/fetch-price?url=${encodeURIComponent(cleanUrl)}`,
+              );
+              const data = await res.json();
+              if (data.success && data.price) {
+                fetchedPrice = data.price;
+                break;
+              }
+            } catch (err) {
+              console.error(`Scraping error for ${product.name}:`, err);
+            }
+          }
+
+          if (fetchedPrice) {
+            product.purchasePrice = fetchedPrice;
+            const newSalePrice = calculateSellingPrice(fetchedPrice);
+            if (newSalePrice) {
+              product.price = newSalePrice;
+              product.customerPrice = newSalePrice;
+            }
+            if (currentUsdRateToman) {
+              product.dollarRateAtAdded = currentUsdRateToman;
+              product.dollarRateRecordedAt = new Date().toISOString();
+            }
+            updatedCount++;
+          } else if (links.length > 0) {
+            failedCount++;
+          }
+        }
+
+        saveProducts();
+        renderProducts();
+        fetchSupplierPricesBtn.disabled = false;
+        scrapingStatus.textContent = `Done! Updated: ${updatedCount}, Failed/Unavailable: ${failedCount}`;
+
+        setTimeout(() => {
+          scrapingStatus.textContent = "";
+        }, 5000);
+      });
+
       function showNotice(message, type = "success") {
         notice.textContent = message;
         notice.className = `notice show ${type}`;
@@ -1138,6 +1272,25 @@
         </div>`;
       }
 
+      function renderSupplierLinks(product) {
+        if (!product.supplierLinks || product.supplierLinks.length === 0) {
+          return `<div style="font-size: 11px; color: var(--muted); margin-top: 3px;">No links (using dollar fallback)</div>`;
+        }
+        return (
+          `<div style="margin-top: 4px;">` +
+          product.supplierLinks
+            .map((link, index) => {
+              if (!link.trim()) return "";
+              const cleanUrl = link.startsWith("http")
+                ? link
+                : "https://" + link;
+              return `<a href="${escapeHtml(cleanUrl)}" target="_blank" rel="noopener" class="link-badge" title="${escapeHtml(link)}">Link ${index + 1} ↗</a>`;
+            })
+            .join("") +
+          `</div>`
+        );
+      }
+
       function renderProducts() {
         const query = searchInput.value.trim().toLowerCase();
         const cat = categoryFilter.value;
@@ -1158,6 +1311,7 @@
           <td>
             <div class="product-name">${escapeHtml(product.name)}</div>
             <span class="mode-tag ${product.trackDollar === false ? "" : "on"}">${product.trackDollar === false ? "Fixed price" : "Tracks dollar"}</span>
+            ${renderSupplierLinks(product)}
           </td>
           <td>${CATEGORY_LABELS[product.category] || "—"}</td>
           <td class="price">
@@ -1233,6 +1387,13 @@
           productPartnerPrice.value,
         );
 
+        // Collect up to 3 links, discarding empty ones
+        const links = [
+          supplierLink1.value.trim(),
+          supplierLink2.value.trim(),
+          supplierLink3.value.trim(),
+        ].filter(Boolean);
+
         if (!name) {
           showNotice("Product name is required.", "error");
           return;
@@ -1272,8 +1433,6 @@
 
           if (product) {
             const wasTracking = product.trackDollar !== false;
-            // Switching tracking on/off counts as a price change: the form
-            // shows today's prices, and they are saved as the new base.
             const pricesChanged =
               !editingShown ||
               price !== editingShown.customer ||
@@ -1304,13 +1463,13 @@
             product.name = name;
             product.count = count;
             product.category = category;
+            product.supplierLinks = links;
             showNotice("Product updated.");
           }
         } else {
           const rate = currentUsdRateToman ?? (await fetchCurrentDollarRate());
           const rateOk = Number.isFinite(Number(rate)) && Number(rate) > 0;
 
-          // Only products that follow the dollar need the rate to be added.
           if (track && !rateOk) {
             showNotice(
               "A current dollar rate is required to add a product that tracks the dollar.",
@@ -1329,6 +1488,7 @@
             customerPrice: price,
             purchasePrice: purchasePriceInput,
             partnerPrice: partnerPriceInput,
+            supplierLinks: links,
             count,
             trackDollar: track,
             dollarRateAtAdded: rateOk ? Number(rate) : null,
@@ -1379,7 +1539,6 @@
         if (action === "edit") {
           editingId = id;
 
-          // Show LIVE prices in the form (rounded to whole Toman).
           const liveOrNull = (base) =>
             hasValue(base) ? Math.round(livePrice(product, base)) : null;
 
@@ -1399,6 +1558,11 @@
           productPrice.value = shownCustomer;
           productPurchasePrice.value = shownPurchase ?? "";
           productPartnerPrice.value = shownPartner ?? "";
+
+          supplierLink1.value = product.supplierLinks?.[0] || "";
+          supplierLink2.value = product.supplierLinks?.[1] || "";
+          supplierLink3.value = product.supplierLinks?.[2] || "";
+
           productCount.value = product.count;
           formTitle.textContent = "Edit Product";
           submitButton.textContent = "Save Changes";

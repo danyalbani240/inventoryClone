@@ -285,6 +285,129 @@ openDb().then((db) => {
         schedulePush();
         return json(res, 200, { ok: true, ver: current + 1 });
       }
+      // Global cookie jar memory for logged-in supplier sessions
+      const supplierCookies = new Map();
+
+      async function getAuthenticatedHeaders(targetUrl) {
+        const urlObj = new URL(targetUrl);
+        const domain = urlObj.hostname;
+
+        // Return cached cookies if available
+        if (supplierCookies.has(domain)) {
+          return {
+            Cookie: supplierCookies.get(domain),
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+          };
+        }
+
+        // Check if .env has credentials for this domain (e.g., TECHNOSUN_USER / TECHNOSUN_PASS)
+        const envPrefix = domain.replace(/[\.-]/g, "_").toUpperCase();
+        const username =
+          process.env[`${envPrefix}_USER`] || process.env.SUPPLIER_USER;
+        const password =
+          process.env[`${envPrefix}_PASS`] || process.env.SUPPLIER_PASS;
+        const loginUrl = process.env[`${envPrefix}_LOGIN_URL`];
+
+        if (username && password && loginUrl) {
+          try {
+            const loginRes = await fetch(loginUrl, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ username, password }),
+              signal: AbortSignal.timeout(10000),
+            });
+            const setCookie = loginRes.headers.get("set-cookie");
+            if (setCookie) {
+              supplierCookies.set(domain, setCookie);
+              return {
+                Cookie: setCookie,
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+              };
+            }
+          } catch (e) {
+            console.error(`Login failed for ${domain}:`, e.message);
+          }
+        }
+
+        return {
+          "User-Agent":
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        };
+      }
+
+      // Helper to convert Persian/Arabic numerals (۲٬۰۵۷٬۰۰۰) to standard numbers (2057000)
+      function parsePersianPrice(text) {
+        if (!text) return null;
+        const persian = ["۰", "۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸", "۹"];
+        const arabic = ["٠", "١", "٢", "٣", "٤", "٥", "٦", "٧", "٨", "٩"];
+        let normal = text;
+        for (let i = 0; i < 10; i++) {
+          normal = normal.replaceAll(persian[i], i).replaceAll(arabic[i], i);
+        }
+        // Remove commas (٬ or ,), spaces, and non-digit characters
+        const clean = normal.replace(/[,٬\s]/g, "").replace(/[^\d]/g, "");
+        const num = Number(clean);
+        return Number.isFinite(num) && num > 0 ? num : null;
+      }
+
+      if (p === "/api/fetch-price" && req.method === "GET") {
+        const targetUrl = url.searchParams.get("url");
+        if (!targetUrl) return json(res, 400, { error: "URL is required" });
+
+        try {
+          const headers = await getAuthenticatedHeaders(targetUrl);
+          const response = await fetch(targetUrl, {
+            headers,
+            signal: AbortSignal.timeout(10000),
+          });
+
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+          const html = await response.text();
+
+          let price = null;
+
+          // 1. Specifically target Technosun & Iranian store price patterns (e.g. text-danger containing تومان/ریال)
+          const priceSpanMatches = html.match(
+            /<span[^>]*class=["'][^"']*text-danger[^"']*["'][^>]*>([\s\S]*?)<\/span>/gi,
+          );
+          if (priceSpanMatches) {
+            for (const spanHtml of priceSpanMatches) {
+              if (spanHtml.includes("تومان") || spanHtml.includes("ریال")) {
+                const innerText = spanHtml.replace(/<[^>]+>/g, "");
+                const p = parsePersianPrice(innerText);
+                if (p && p > 999) {
+                  // realistic minimum price filter
+                  price = p;
+                  break;
+                }
+              }
+            }
+          }
+
+          // 2. Fallback: Generic schema / data price attributes
+          if (!price) {
+            const attrMatch =
+              html.match(
+                /itemprop=["']price["']\s*content=["']([\d.]+)["']/i,
+              ) || html.match(/data-price=["']([\d.]+)["']/i);
+            if (attrMatch) price = Number(attrMatch[1]);
+          }
+
+          // 3. Fallback: Search any text pattern matching digits followed by تومان
+          if (!price) {
+            const generalMatch = html.match(
+              /([\d۲-۹٬,]{4,})\s*(?:تومان|ریال)/i,
+            );
+            if (generalMatch) {
+              price = parsePersianPrice(generalMatch[1]);
+            }
+          }
+
+          return json(res, 200, { success: true, url: targetUrl, price });
+        } catch (err) {
+          return json(res, 500, { success: false, error: err.message });
+        }
+      }
 
       if (p.startsWith("/api/")) return json(res, 404, { error: "not found" });
       return serveStatic(req, res, p);
