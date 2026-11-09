@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>گزارش روزانه · ZRCO</title>
+<style>
+@font-face{font-family:Vazirmatn;src:local("Vazirmatn"),url(fonts/Vazirmatn.woff2) format("woff2");font-display:swap}
+:root{--bg:#f5f5f7;--card:#fff;--ink:#1d1d1f;--mut:#6e6e73;--line:#e8e8ed;--blue:#0071e3;--green:#28a745;--red:#e5303d;--amber:#f59e0b;--violet:#6e56cf;--ease:cubic-bezier(.16,1,.3,1)}
+@page{size:A4;margin:14mm 12mm 16mm}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Vazirmatn,"SF Pro Display",-apple-system,"Segoe UI",Tahoma,sans-serif;direction:rtl;-webkit-font-smoothing:antialiased}
+button,input,textarea{font-family:inherit}
+.top{position:sticky;top:0;z-index:50;background:rgba(245,245,247,.78);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid rgba(0,0,0,.06)}
+.topin{width:min(1180px,calc(100% - 32px));margin:auto;display:flex;align-items:center;gap:18px;height:54px}
+.brand{display:flex;align-items:center;gap:9px;font-weight:700;letter-spacing:.14em;font-size:15px;text-decoration:none;color:var(--ink)}.logo{width:28px;height:28px}
+.tnav{display:flex;gap:2px;margin-right:auto;overflow-x:auto;scrollbar-width:none}
+.tnav a{font-size:13px;color:var(--mut);text-decoration:none;padding:6px 11px;border-radius:99px;white-space:nowrap;transition:.25s}
+.tnav a:hover{color:var(--ink);background:rgba(0,0,0,.05)}.tnav a.on{color:#fff;background:var(--ink)}
+.wrap{width:min(1180px,calc(100% - 32px));margin:0 auto;padding:30px 0 90px}
+.head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px}
+.head h1{margin:0;font-size:clamp(28px,4.5vw,40px);font-weight:700;letter-spacing:-.02em}.head p{margin:4px 0 0;color:var(--mut);font-size:14px}
+.btn{border:0;border-radius:99px;padding:10px 18px;font-size:13px;font-weight:600;cursor:pointer;background:var(--blue);color:#fff;transition:.25s var(--ease)}
+.btn:hover{transform:scale(1.04);filter:brightness(1.08)}.btn:active{transform:scale(.97)}.btn:disabled{opacity:.45;pointer-events:none}
+.btn.g{background:#fff;color:var(--ink);box-shadow:inset 0 0 0 1px var(--line)}.btn.gr{background:var(--green)}.btn.sm{padding:6px 12px;font-size:12px}
+.acts{display:flex;gap:8px;flex-wrap:wrap}
+.rv{opacity:0;transform:translateY(24px);transition:opacity .8s var(--ease),transform .8s var(--ease)}.rv.in{opacity:1;transform:none}
+.card{background:var(--card);border-radius:24px;padding:22px;margin-bottom:16px;box-shadow:0 1px 2px rgba(0,0,0,.04),0 8px 30px rgba(0,0,0,.04);min-width:0}
+.card h3{margin:0 0 3px;font-size:18px;font-weight:700}.card .sub{margin:0 0 14px;color:var(--mut);font-size:13px}
+.cols{display:grid;grid-template-columns:1.5fr 1fr;gap:18px;align-items:start}
+.nav3{display:flex;gap:8px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
+.hero{display:grid;grid-template-columns:auto 1fr auto;gap:24px;align-items:center;padding:26px}
+.bigd{text-align:center;min-width:96px}.bigd b{display:block;font-size:72px;line-height:1;font-weight:800;letter-spacing:-.04em;background:linear-gradient(180deg,#1d1d1f,#55555d);-webkit-background-clip:text;background-clip:text;color:transparent;animation:pop .8s var(--ease) both}
+.bigd small{color:var(--mut);font-weight:600;font-size:13px}
+.pill{display:inline-flex;align-items:center;gap:6px;border-radius:99px;padding:3px 11px;font-size:12px;font-weight:700;background:var(--bg);color:var(--mut)}
+.pill.ok{background:#e3f6e8;color:#1d7a35}.pill.wr{background:#fdf0d5;color:#a15c07}.pill.bl{background:#e1efff;color:#0b5cb8}
+.ind{font-size:12px;color:var(--mut);transition:.3s}.ind.bad{color:var(--red)}
+.fld{display:block;margin-bottom:14px}.fld>span{display:block;font-size:13px;font-weight:600;margin-bottom:6px}.fld>small{color:var(--mut);font-weight:400}
+.in,textarea{width:100%;border:0;background:var(--bg);border-radius:12px;padding:12px 14px;font-size:16px;color:var(--ink);outline:none;transition:.25s}
+textarea{min-height:90px;resize:none;line-height:1.9}
+.in:focus,textarea:focus{background:#fff;box-shadow:0 0 0 3px rgba(0,113,227,.25)}
+.in:disabled,textarea:disabled{opacity:.75}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.ringw{position:relative;width:120px;height:120px}.ring{transform:rotate(-90deg);width:120px;height:120px}.ring circle{fill:none;stroke-width:9;stroke-linecap:round}
+.ring .bg{stroke:var(--bg)}.ring .fg{stroke:var(--green);transition:stroke-dasharray 1s var(--ease)}
+.ringc{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:800;font-size:22px}.ringc small{font-size:10.5px;color:var(--mut);font-weight:600}
+.banner{display:flex;gap:12px;align-items:flex-start;background:#fff8e6;border-radius:20px;padding:16px 18px;margin-bottom:16px;font-size:13.5px;line-height:1.9;animation:pop .7s var(--ease) both}
+.banner b{display:block;color:#8a5a00;margin-bottom:2px}.banner.lock{background:#e3f6e8}.banner.lock b{color:#1d7a35}
+.chk{display:flex;align-items:center;gap:12px;padding:11px 4px;border-bottom:1px solid var(--line);font-size:14px}.chk:last-child{border:0}
+.cb{flex:none;width:26px;height:26px;border-radius:50%;border:2px solid #c9c9d0;background:#fff;cursor:pointer;position:relative;transition:.3s var(--ease);padding:0}
+.cb.on{background:var(--blue);border-color:var(--blue);animation:pop .4s var(--ease)}
+.cb.on:after{content:"";position:absolute;left:7px;top:3px;width:6px;height:12px;border:solid #fff;border-width:0 2.5px 2.5px 0;transform:rotate(45deg)}
+.chk .t{flex:1}.chk.d .t{color:var(--mut);text-decoration:line-through}
+.x{border:0;background:transparent;color:#aeaeb2;font-size:20px;cursor:pointer;padding:2px 8px;border-radius:8px}.x:hover{color:var(--red);background:#fde4e6}
+.addrow{display:flex;gap:8px;margin-top:10px}
+.seg{display:flex;gap:4px;background:rgba(0,0,0,.06);padding:4px;border-radius:14px}
+.seg button{flex:1;border:0;background:transparent;padding:9px 6px;border-radius:10px;font-size:13px;font-weight:600;color:var(--mut);cursor:pointer;transition:.3s var(--ease)}
+.seg button.on{background:#fff;color:var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.12)}
+.diff{margin-top:6px;font-size:13px;font-weight:700}.diff.ok{color:var(--green)}.diff.bd{color:var(--red)}.diff.wn{color:var(--amber)}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.stat{background:var(--bg);border-radius:16px;padding:12px 14px}.stat .k{font-size:12px;color:var(--mut);font-weight:600}.stat .v{font-size:18px;font-weight:800;margin-top:3px}
+.stat .v small{font-size:10.5px;color:var(--mut);font-weight:600;margin-right:3px}
+.li{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);font-size:13px}.li:last-child{border:0}.li span:first-child{min-width:0;overflow-wrap:anywhere}
+.mh{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}.mh b{font-size:15px}
+.mg{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;text-align:center}
+.mg .w{font-size:11px;color:var(--mut);font-weight:700;padding:4px 0}
+.mg button{aspect-ratio:1;border:0;border-radius:12px;background:var(--bg);font-size:13px;font-weight:700;cursor:pointer;position:relative;transition:.25s var(--ease);color:var(--ink);padding:0}
+.mg button:hover{transform:scale(1.1)}.mg button.sel{background:var(--ink);color:#fff}.mg button.tdy:not(.sel){box-shadow:inset 0 0 0 2px var(--blue)}
+.mg button i{position:absolute;bottom:4px;left:50%;margin-left:-3px;width:6px;height:6px;border-radius:50%}
+.mg .sub i{background:var(--green)}.mg .dr i{background:var(--amber)}.mg .ms i{background:var(--red)}
+.mg i.e{display:none}.mg .emp{visibility:hidden}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:11.5px;color:var(--mut);margin-top:12px}.legend i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-left:5px}
+.hist{max-height:360px;overflow:auto}
+.hi{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 4px;border-bottom:1px solid var(--line);cursor:pointer;font-size:13px;transition:.2s}.hi:hover{background:var(--bg)}.hi:last-child{border:0}
+.hi b{display:block}.hi small{color:var(--mut)}
+details{border-radius:14px;background:var(--bg);margin-top:8px}summary{cursor:pointer;padding:11px 14px;font-weight:600;font-size:13px;list-style:none}summary::-webkit-details-marker{display:none}details>div{padding:0 14px 10px}
+.log{font-size:12px;color:var(--mut);line-height:2}
+.toast{position:fixed;bottom:26px;left:50%;transform:translate(-50%,30px);background:var(--ink);color:#fff;padding:11px 20px;border-radius:99px;font-size:13px;font-weight:600;opacity:0;pointer-events:none;transition:.5s var(--ease);z-index:99}
+.toast.show{opacity:1;transform:translate(-50%,0)}.toast.bad{background:var(--red)}
+.sheet,.pfoot{display:none}
+@keyframes pop{from{opacity:0;transform:scale(.88) translateY(10px)}}
+@media(max-width:900px){.cols{grid-template-columns:1fr}.hero{grid-template-columns:1fr;text-align:center;justify-items:center}.two{grid-template-columns:1fr}.hero .ringw{margin:auto}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.rv{opacity:1;transform:none}}
+@media print{
+ html{font-size:11px}body{background:#fff}*{animation:none!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+ .top,.wrap,.toast{display:none!important}.sheet{display:block;padding:0}
+ .pfoot{display:block;position:fixed;bottom:0;right:0;left:0;text-align:center;color:var(--mut);font-size:9.5px;border-top:1px solid var(--line);padding-top:4px;background:#fff}
+ .sh-h{display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid var(--ink);padding-bottom:8px;margin-bottom:14px}
+ .sh-h .brand{font-size:16px}.sh-h small{display:block;color:var(--mut);font-size:11px}
+ .sh h4{margin:14px 0 5px;font-size:13px;border-right:4px solid var(--blue);padding-right:8px}.sh p{margin:0;line-height:2;white-space:pre-wrap;font-size:12px}
+ .sh ul{margin:0;padding-right:18px;font-size:12px;line-height:2}.sh .g3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+ .sh .bx{border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:11.5px}.sh .bx b{display:block;font-size:13px}
+ .sign{display:flex;justify-content:space-between;margin-top:34px;font-size:12px}.sign div{border-top:1px solid #999;padding-top:6px;width:40%;text-align:center}
+}
+</style>
+</head>
+<body>
+<header class="top"><div class="topin">
+  <a class="brand" href="index.html"><svg class="logo" viewBox="0 0 28 28"><rect width="28" height="28" rx="8" fill="#1d1d1f"/><path d="M8 9h12l-9 10h9" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span id="brand"></span></a>
+  <nav class="tnav"><a href="index.html">موجودی</a><a href="sales.html">فروش</a><a href="expenses.html">هزینه‌ها</a><a href="receivables.html">مطالبات</a><a href="payables.html">بدهی‌ها</a><a href="todo.html">کارها</a><a href="contacts.html">مخاطبین</a><a href="daily.html" class="on">گزارش روزانه</a><a href="reports.html">گزارش‌ها</a></nav>
+</div></header>
+<main class="wrap">
+  <div class="head"><div><h1>گزارش روزانه</h1><p>مدیر شیفت آخر روز اینجا می‌نویسد چه کارهایی انجام داد و چه اتفاقاتی افتاد.</p></div>
+    <div class="acts"><button class="btn g" id="pdf">چاپ / PDF</button></div></div>
+  <div id="out"></div>
+</main>
+<div class="sheet sh" id="sheet"></div><div class="pfoot" id="pfoot"></div><div class="toast" id="toast"></div>
+<datalist id="staff"></datalist>
+<script>
+const BRAND="ZRCO";document.getElementById("brand").textContent=BRAND;
+const K={sales:"inventory-sales-log-v1",exp:"shop-expenses-log-v1",pay:"shop-payables-v1",rec:"shop-receivables-v1",inv:"inventory-invoices-v1",todo:"daily-todo-manager-tasks-v1",dr:"shop-daily-reports-v1"};
+const load=k=>{try{const p=JSON.parse(localStorage.getItem(k)||"[]");return Array.isArray(p)?p:[]}catch(e){return[]}};
+const S=load(K.sales),E=load(K.exp),PY=load(K.pay),RC=load(K.rec),TD=load(K.todo),INV=new Map(load(K.inv).map(i=>[i.id,i]));
+const TZ="Asia/Tehran",DAY=86400000,$=id=>document.getElementById(id);
+const FA=["فروردین","اردیبهشت","خرداد","تیر","مرداد","شهریور","مهر","آبان","آذر","دی","بهمن","اسفند"];
+const jf=new Intl.DateTimeFormat("fa-IR-u-ca-persian-nu-latn",{timeZone:TZ,year:"numeric",month:"numeric",day:"numeric"}),jc=new Map();
+function jp(d){d=+new Date(d);let r=jc.get(d);if(!r){r={};for(const p of jf.formatToParts(d))if(p.type!=="literal")r[p.type]=+p.value;jc.set(d,r)}return r}
+function msOf(y,m,d){const key=(a,b,c)=>a*372+b*31+c;let ms=Date.UTC(y+621,2,21,12)+Math.round((m-1)*30.5+d-1)*DAY;
+  for(let i=0;i<80;i++){const p=jp(ms);if(p.year===y&&p.month===m&&p.day===d)return ms;ms+=(key(y,m,d)>key(p.year,p.month,p.day)?1:-1)*DAY}return ms}
+const mlen=(y,m)=>{const s=msOf(y,m,1);let n=0;while(n<31&&jp(s+n*DAY).month===m)n++;return n};
+const dk=new Intl.DateTimeFormat("en-CA",{timeZone:TZ}),dkey=d=>dk.format(new Date(d));
+const ymdMs=s=>Date.parse(s+"T12:00:00Z"),msYmd=ms=>new Date(ms).toISOString().slice(0,10);
+const nf=new Intl.NumberFormat("fa-IR"),nf0=new Intl.NumberFormat("fa-IR",{useGrouping:false});
+const fmt=n=>nf.format(Math.round(+n||0)),fn=n=>nf0.format(n),T=" تومان";
+const toLat=s=>String(s).replace(/[۰-۹]/g,d=>"۰۱۲۳۴۵۶۷۸۹".indexOf(d)).replace(/[٠-٩]/g,d=>"٠١٢٣٤٥٦٧٨٩".indexOf(d)).replace(/[,،٬\s]/g,"");
+const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
+const sum=(a,f)=>a.reduce((t,x)=>t+(+f(x)||0),0),uid=()=>crypto.randomUUID?crypto.randomUUID():Date.now()+"-"+Math.random();
+const longF=new Intl.DateTimeFormat("fa-IR-u-ca-persian",{timeZone:TZ,weekday:"long",day:"numeric",month:"long",year:"numeric"});
+const timeF=new Intl.DateTimeFormat("fa-IR",{timeZone:TZ,hour:"2-digit",minute:"2-digit"});
+const MOOD=["سخت","معمولی","خوب","عالی"],WD=["ش","ی","د","س","چ","پ","ج"];
+const DEF=["باز کردن فروشگاه و روشن کردن وسایل","شمردن موجودی صندوق","پاسخ به پیام‌ها و تماس‌ها","بررسی مرسوله‌ها و تحویل کالا","مرتب کردن قفسه‌ها و ویترین","شمردن صندوق و بستن فروشگاه"];
+// ---------- storage ----------
+function loadDB(){try{const o=JSON.parse(localStorage.getItem(K.dr)||"{}");if(Array.isArray(o))return{template:DEF.slice(),reports:o,staff:[]};
+  return{template:Array.isArray(o.template)&&o.template.length?o.template:DEF.slice(),reports:Array.isArray(o.reports)?o.reports:[],staff:Array.isArray(o.staff)?o.staff:[]}}catch(e){return{template:DEF.slice(),reports:[],staff:[]}}}
+let DB=loadDB(),saveT;
+function ind(t,bad){const e=$("ind");if(e){e.textContent=t;e.className="ind"+(bad?" bad":"")}}
+function flush(){try{localStorage.setItem(K.dr,JSON.stringify(DB));ind("ذخیره شد ✓")}catch(e){ind("ذخیره نشد",1)}}
+function save(){ind("در حال ذخیره…");clearTimeout(saveT);saveT=setTimeout(flush,350)}
+function toast(t,bad){const e=$("toast");e.textContent=t;e.className="toast show"+(bad?" bad":"");clearTimeout(toast.t);toast.t=setTimeout(()=>e.className="toast",2600)}
+// ---------- cash events (same logic as the monthly report) ----------
+function evOf(r){const ev=[];let dp=0;
+  for(const h of r.history||[])for(const[f,c]of Object.entries(h.changes||{}))if(f==="amountPaid"||f.startsWith("inst_paid_")){const d=(+c.after||0)-(+c.before||0);dp+=d;ev.push({t:+new Date(h.at),a:d})}
+  const init=(+r.amountPaid||0)-dp;if(init>0)ev.push({t:+new Date(r.date),a:init});return ev}
+const RCE=RC.flatMap(evOf),PYE=PY.flatMap(evOf);
+const isCredit=s=>{const i=s.invoiceId&&INV.get(s.invoiceId);return(s.payment&&s.payment.type==="installments")||(i&&i.payment&&i.payment.type==="installments")};
+function liveOf(d){
+  const sales=S.filter(s=>dkey(s.date)===d),exps=E.filter(e=>dkey(e.date)===d),sold=sum(sales,s=>s.sold),credit=sum(sales.filter(isCredit),s=>s.sold);
+  const rcv=sum(RCE.filter(e=>dkey(e.t)===d&&e.a>0),e=>e.a),pyo=sum(PYE.filter(e=>dkey(e.t)===d&&e.a>0),e=>e.a),spent=sum(exps,e=>(+e.cost||0)+(+e.shipping||0));
+  const due=[];for(const r of RC)(r.installments&&r.installments.length?r.installments:r.dueDate?[{dueDate:r.dueDate,amount:r.amountOwed,paid:r.amountPaid}]:[]).forEach(i=>{if(dkey(i.dueDate)===d&&+i.paid<+i.amount)due.push({n:r.name,a:+i.amount-+i.paid})});
+  return{sales,exps,sold,credit,benefit:sum(sales,s=>s.benefit),spent,cashIn:sold-credit+rcv,cashOut:spent+pyo,due,todo:TD.filter(t=>t.date===d),
+    deals:new Set(sales.map(s=>s.invoiceId||s.id)).size}
+}
+// ---------- state ----------
+let day=dkey(new Date()),R=null,live=null;
+const today=()=>dkey(new Date());
+const blank=()=>({id:uid(),day,manager:(DB.reports.slice().sort((a,b)=>a.day<b.day?1:-1)[0]||{}).manager||"",from:"",to:"",checks:DB.template.map(t=>({t,done:false})),tasks:[],summary:"",issues:"",customers:"",handover:"",mood:-1,cashOpen:"",cashClose:"",status:"draft",log:[]});
+function pick(){R=DB.reports.find(r=>r.day===day)||blank();live=liveOf(day)}
+function touch(){if(!DB.reports.includes(R))DB.reports.push(R);R.updatedAt=new Date().toISOString();save();side()}
+const locked=()=>R.status==="submitted";
+function prog(){const n=R.checks.length+R.tasks.length,d=R.checks.filter(c=>c.done).length+R.tasks.filter(t=>t.done).length;return{n,d,p:n?d/n:0}}
+function expected(){return(+R.cashOpen||0)+live.cashIn-live.cashOut}
+// ---------- render pieces ----------
+function ring(){const{p,d,n}=prog(),C=2*Math.PI*42;return `<svg class="ring" viewBox="0 0 100 100"><circle class="bg" cx="50" cy="50" r="42"/><circle class="fg" cx="50" cy="50" r="42" stroke-dasharray="${p*C} ${C}"/></svg><div class="ringc">${fn(Math.round(p*100))}٪<small>${fn(d)} از ${fn(n)}</small></div>`}
+function checksH(){const L=locked();return R.checks.map((c,i)=>`<div class="chk ${c.done?"d":""}"><button class="cb ${c.done?"on":""}" data-ck="${i}" ${L?"disabled":""} aria-label="انجام شد"></button><span class="t">${esc(c.t)}</span>${c.custom&&!L?`<button class="x" data-ckx="${i}">×</button>`:""}</div>`).join("")}
+function tasksH(){const L=locked();return R.tasks.length?R.tasks.map((t,i)=>`<div class="chk ${t.done?"d":""}"><button class="cb ${t.done?"on":""}" data-tk="${i}" ${L?"disabled":""}></button><span class="t">${esc(t.t)}</span>${L?"":`<button class="x" data-tkx="${i}">×</button>`}</div>`).join(""):'<div class="sub" style="margin:6px 0">هنوز کاری اضافه نشده. هر کاری که انجام دادید را یکی‌یکی بنویسید.</div>'}
+function cashNote(){if(R.cashClose===""||R.cashOpen==="")return"";const d=(+R.cashClose||0)-expected();
+  return `<div class="diff ${d===0?"ok":Math.abs(d)<=50000?"wn":"bd"}">${d===0?"صندوق دقیقاً با ثبت‌های امروز می‌خواند ✓":`اختلاف با تخمین: ${d>0?"+":"−"}${fmt(Math.abs(d))} تومان`}</div><div class="sub" style="margin:4px 0 0">تخمین = موجودی اول + دریافت نقدی ${fmt(live.cashIn)} − پرداخت‌ها ${fmt(live.cashOut)}</div>`}
+function liveH(){const l=live;
+  return `<div class="stats"><div class="stat"><div class="k">فروش</div><div class="v">${fmt(l.sold)}<small>${T.trim()}</small></div></div><div class="stat"><div class="k">سود فروش</div><div class="v">${fmt(l.benefit)}<small>${T.trim()}</small></div></div>
+  <div class="stat"><div class="k">هزینه‌ها</div><div class="v">${fmt(l.spent)}<small>${T.trim()}</small></div></div><div class="stat"><div class="k">تعداد فروش</div><div class="v">${fn(l.deals)}</div></div></div>
+  ${l.sales.length?`<details><summary>فروش‌های امروز (${fn(l.sales.length)})</summary><div>${l.sales.map(s=>`<div class="li"><span>${esc(s.name)}${(+s.qty||1)>1?" × "+fn(s.qty):""}${s.customer?` · ${esc(s.customer)}`:""}</span><b>${fmt(s.sold)}</b></div>`).join("")}</div></details>`:""}
+  ${l.exps.length?`<details><summary>هزینه‌های امروز (${fn(l.exps.length)})</summary><div>${l.exps.map(e=>`<div class="li"><span>${esc(e.item)}</span><b>${fmt((+e.cost||0)+(+e.shipping||0))}</b></div>`).join("")}</div></details>`:""}
+  ${l.due.length?`<details open><summary>اقساط سررسید امروز (${fn(l.due.length)})</summary><div>${l.due.map(x=>`<div class="li"><span>${esc(x.n)}</span><b>${fmt(x.a)}</b></div>`).join("")}</div></details>`:""}
+  ${l.todo.length?`<details><summary>کارهای صفحهٔ «کارها» (${fn(l.todo.length)})</summary><div>${l.todo.map(t=>`<div class="li"><span>${esc(t.title)}</span><b>${t.status==="done"?"انجام شد":t.status==="in-progress"?"در حال انجام":"مانده"}</b></div>`).join("")}${locked()||!l.todo.some(t=>t.status==="done")?"":`<button class="btn g sm" id="imp" style="margin-top:8px">افزودن کارهای انجام‌شده به گزارش</button>`}</div></details>`:""}
+  ${!l.sales.length&&!l.exps.length?'<div class="sub" style="margin:8px 0 0">برای این روز فروش یا هزینه‌ای ثبت نشده.</div>':""}`}
+function monthH(){
+  const j=jp(msYmd0()),y=j.year,m=j.month,N=mlen(y,m),ms1=msOf(y,m,1),off=(new Date(ms1).getUTCDay()+1)%7,act=new Set([...S,...E].map(x=>dkey(x.date))),td=today();
+  let g=WD.map(w=>`<div class="w">${w}</div>`).join("")+`<div class="emp" style="grid-column:span ${off}"></div>`.repeat(off?1:0).replace(/span \d+/,`span ${off}`);
+  for(let i=1;i<=N;i++){const s=msYmd(ms1+(i-1)*DAY),r=DB.reports.find(x=>x.day===s),cls=r?(r.status==="submitted"?"sub":"dr"):(s<td&&act.has(s)?"ms":"");
+    g+=`<button class="${cls} ${s===day?"sel":""} ${s===td?"tdy":""}" data-d="${s}">${fn(i)}<i class="${cls?"":"e"}"></i></button>`}
+  return `<div class="mh"><button class="btn g sm" data-mm="1">›</button><b>${FA[m-1]} ${fn(y)}</b><button class="btn g sm" data-mm="-1">‹</button></div><div class="mg">${g}</div>
+  <div class="legend"><span><i style="background:var(--green)"></i>ثبت‌شده</span><span><i style="background:var(--amber)"></i>پیش‌نویس</span><span><i style="background:var(--red)"></i>فعالیت بدون گزارش</span></div>`}
+const msYmd0=()=>ymdMs(day);
+function histH(){const L=DB.reports.slice().sort((a,b)=>a.day<b.day?1:-1).slice(0,14);
+  return L.length?L.map(r=>`<div class="hi" data-d="${r.day}"><div><b>${esc(r.manager||"بدون نام")}</b><small>${longF.format(ymdMs(r.day))}</small></div><span class="pill ${r.status==="submitted"?"ok":"wr"}">${r.status==="submitted"?"ثبت‌شده":"پیش‌نویس"}</span></div>`).join(""):'<div class="sub">هنوز گزارشی ثبت نشده.</div>'}
+function side(){const a=$("ring");if(a)a.innerHTML=ring();const m=$("month");if(m)m.innerHTML=monthH();const h=$("hist");if(h)h.innerHTML=histH();const s=$("stpill");if(s)stP(s)}
+function stP(e){e.className="pill "+(R.status==="submitted"?"ok":DB.reports.includes(R)?"wr":"");e.textContent=R.status==="submitted"?"ثبت نهایی شد":DB.reports.includes(R)?"پیش‌نویس":"شروع نشده"}
+function banner(){const prev=DB.reports.filter(r=>r.day<day&&(r.handover||"").trim()).sort((a,b)=>a.day<b.day?1:-1)[0];
+  let h="";if(prev&&ymdMs(day)-ymdMs(prev.day)<=7*DAY)h+=`<div class="banner"><div>📌</div><div><b>یادداشت تحویل از ${esc(prev.manager||"مدیر قبلی")} · ${longF.format(ymdMs(prev.day))}</b>${esc(prev.handover).replace(/\n/g,"<br>")}</div></div>`;
+  if(locked())h+=`<div class="banner lock"><div>✓</div><div><b>این گزارش ثبت نهایی شده</b>توسط ${esc(R.manager)} در ${longF.format(new Date(R.submittedAt))} ساعت ${timeF.format(new Date(R.submittedAt))}.</div></div>`;return h}
+function render(){
+  pick();const L=locked(),dis=L?"disabled":"",j=jp(msYmd0()),isT=day===today();
+  $("pfoot").textContent=`${BRAND} · گزارش روزانه · ${longF.format(msYmd0())}`;
+  $("staff").innerHTML=[...new Set([...DB.staff,...DB.reports.map(r=>r.manager)].filter(Boolean))].map(n=>`<option value="${esc(n)}">`).join("");
+  $("out").innerHTML=`
+  <div class="nav3"><button class="btn g sm" data-nav="-1">روز قبل</button><button class="btn g sm" data-nav="0">امروز</button><button class="btn g sm" data-nav="1">روز بعد</button><span class="ind" id="ind"></span></div>
+  <section class="card hero rv in"><div class="bigd"><b>${fn(j.day)}</b><small>${FA[j.month-1]} ${fn(j.year)}</small></div>
+    <div><div style="font-size:15px;font-weight:700;margin-bottom:10px">${longF.format(msYmd0())} ${isT?'<span class="pill bl">امروز</span>':""} <span id="stpill" class="pill"></span></div>
+    <div class="two"><label class="fld" style="margin:0"><span>مدیر شیفت</span><input class="in" data-f="manager" list="staff" value="${esc(R.manager)}" placeholder="نام شما" ${dis}></label>
+    <div class="two"><label class="fld" style="margin:0"><span>شروع</span><input class="in" type="time" data-f="from" value="${R.from}" ${dis}></label><label class="fld" style="margin:0"><span>پایان</span><input class="in" type="time" data-f="to" value="${R.to}" ${dis}></label></div></div></div>
+    <div class="ringw" id="ring">${ring()}</div></section>
+  ${banner()}
+  <div class="cols"><div>
+    <section class="card rv"><h3>چک‌لیست روز</h3><p class="sub">کارهای ثابت هر روز را تیک بزنید.</p><div id="checks">${checksH()}</div>
+      ${L?"":`<div class="addrow"><input class="in" id="cin" placeholder="مورد تازه برای امروز…"><button class="btn g" id="cadd">افزودن</button></div>
+      <details><summary>ویرایش چک‌لیست پیش‌فرض (برای گزارش‌های بعدی)</summary><div><textarea id="tpl" style="min-height:130px" placeholder="هر مورد در یک خط">${esc(DB.template.join("\n"))}</textarea><button class="btn g sm" id="tsave" style="margin-top:8px">ذخیره چک‌لیست</button></div></details>`}</section>
+    <section class="card rv"><h3>کارهایی که امروز انجام دادم</h3><p class="sub">هر کار را جدا بنویسید تا در گزارش ماهانه هم دیده شود.</p><div id="tasks">${tasksH()}</div>
+      ${L?"":`<div class="addrow"><input class="in" id="tin" placeholder="مثلاً: تماس با تأمین‌کننده دربارهٔ هارد"><button class="btn" id="tadd">افزودن</button></div>`}</section>
+    <section class="card rv"><h3>شرح روز</h3><p class="sub">این بخش را با زبان خودتان بنویسید.</p>
+      <label class="fld"><span>خلاصهٔ امروز <small>(چه شد؟)</small></span><textarea data-f="summary" ${dis}>${esc(R.summary)}</textarea></label>
+      <label class="fld"><span>مشکلات و اتفاقات غیرعادی</span><textarea data-f="issues" ${dis}>${esc(R.issues)}</textarea></label>
+      <label class="fld"><span>مشتری‌ها و پیگیری‌ها <small>(چه کسی آمد، چه خواست، چه باید پیگیری شود)</small></span><textarea data-f="customers" ${dis}>${esc(R.customers)}</textarea></label>
+      <div class="fld"><span>حال‌وهوای روز</span><div class="seg">${MOOD.map((m,i)=>`<button data-mood="${i}" class="${R.mood===i?"on":""}" ${dis}>${m}</button>`).join("")}</div></div></section>
+    <section class="card rv"><h3>صندوق</h3><p class="sub">موجودی نقد اول و آخر روز را بنویسید تا با ثبت‌های امروز مقایسه شود.</p>
+      <div class="two"><label class="fld" style="margin:0"><span>موجودی اول روز (تومان)</span><input class="in" inputmode="numeric" data-n="cashOpen" value="${R.cashOpen===""?"":fmt(R.cashOpen)}" ${dis}></label>
+      <label class="fld" style="margin:0"><span>موجودی آخر روز (تومان)</span><input class="in" inputmode="numeric" data-n="cashClose" value="${R.cashClose===""?"":fmt(R.cashClose)}" ${dis}></label></div><div id="cashn">${cashNote()}</div></section>
+    <section class="card rv"><h3>یادداشت برای مدیر فردا</h3><p class="sub">فردا بالای صفحه به مدیر بعدی نشان داده می‌شود.</p><textarea data-f="handover" ${dis}>${esc(R.handover)}</textarea>
+      <div class="acts" style="margin-top:16px">${L?`<button class="btn g" id="reopen">باز کردن برای ویرایش</button>`:`<button class="btn gr" id="submit">ثبت نهایی گزارش</button>`}<button class="btn g" id="pdf2">چاپ / PDF</button></div>
+      ${(R.log||[]).length?`<details><summary>تاریخچهٔ این گزارش</summary><div class="log">${R.log.map(x=>`${longF.format(new Date(x.at))} ${timeF.format(new Date(x.at))} — ${esc(x.a)}`).join("<br>")}</div></details>`:""}</section>
+  </div><aside>
+    <section class="card rv"><h3>اعداد امروز از برنامه</h3><p class="sub">خودکار از فروش، هزینه و مطالبات همین روز.</p>${liveH()}</section>
+    <section class="card rv"><h3>تقویم گزارش‌ها</h3><p class="sub">روی هر روز بزنید تا گزارشش باز شود.</p><div id="month">${monthH()}</div></section>
+    <section class="card rv"><h3>آخرین گزارش‌ها</h3><div class="hist" id="hist">${histH()}</div></section>
+  </aside></div>`;
+  stP($("stpill"));autoH();sheet();reveal();
+}
+function autoH(){document.querySelectorAll("textarea").forEach(t=>{t.style.height="auto";t.style.height=Math.max(90,t.scrollHeight+2)+"px"})}
+function reveal(){const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target)}}),{threshold:.05});document.querySelectorAll(".rv:not(.in)").forEach(el=>io.observe(el))}
+// ---------- print sheet ----------
+function sheet(){const L=R.status==="submitted"&&R.snapshot?R.snapshot:live,mood=R.mood>=0?MOOD[R.mood]:"—",sec=(t,v)=>v&&String(v).trim()?`<h4>${t}</h4><p>${esc(v)}</p>`:"";
+  $("sheet").innerHTML=`<div class="sh-h"><div class="brand"><svg class="logo" viewBox="0 0 28 28"><rect width="28" height="28" rx="8" fill="#1d1d1f"/><path d="M8 9h12l-9 10h9" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>${BRAND}</div><div><b>گزارش روزانه فروشگاه</b><small>${longF.format(msYmd0())}</small></div></div>
+  <div class="g3"><div class="bx">مدیر شیفت<b>${esc(R.manager||"—")}</b></div><div class="bx">ساعت کار<b>${R.from||"—"} تا ${R.to||"—"}</b></div><div class="bx">حال‌وهوا<b>${mood}</b></div>
+  <div class="bx">فروش<b>${fmt(L.sold)}</b></div><div class="bx">سود فروش<b>${fmt(L.benefit)}</b></div><div class="bx">هزینه‌ها<b>${fmt(L.spent)}</b></div>
+  <div class="bx">موجودی اول صندوق<b>${R.cashOpen===""?"—":fmt(R.cashOpen)}</b></div><div class="bx">موجودی آخر صندوق<b>${R.cashClose===""?"—":fmt(R.cashClose)}</b></div><div class="bx">تعداد فروش<b>${fn(L.deals)}</b></div></div>
+  <h4>چک‌لیست</h4><ul>${R.checks.map(c=>`<li>${c.done?"✓":"○"} ${esc(c.t)}</li>`).join("")}</ul>
+  <h4>کارهای انجام‌شده</h4>${R.tasks.length?`<ul>${R.tasks.map(t=>`<li>${t.done?"✓":"○"} ${esc(t.t)}</li>`).join("")}</ul>`:"<p>—</p>"}
+  ${sec("خلاصهٔ روز",R.summary)}${sec("مشکلات و اتفاقات",R.issues)}${sec("مشتری‌ها و پیگیری‌ها",R.customers)}${sec("یادداشت برای مدیر فردا",R.handover)}
+  <div class="sign"><div>امضای مدیر شیفت</div><div>تأیید مدیر کل</div></div>`}
+// ---------- events ----------
+const out=$("out");
+function go(d){day=d;render();window.scrollTo({top:0,behavior:"smooth"})}
+out.addEventListener("input",e=>{const t=e.target;if(locked())return;
+  if(t.dataset.f){R[t.dataset.f]=t.value;if(t.tagName==="TEXTAREA"){t.style.height="auto";t.style.height=Math.max(90,t.scrollHeight+2)+"px"}touch();sheet()}
+  else if(t.dataset.n){const v=toLat(t.value);R[t.dataset.n]=v===""?"":(+v||0);touch();$("cashn").innerHTML=cashNote()}});
+out.addEventListener("focusout",e=>{const t=e.target;if(t.dataset&&t.dataset.n&&t.value!=="")t.value=fmt(toLat(t.value))});
+out.addEventListener("click",e=>{const b=e.target.closest("button,.hi");if(!b)return;const d=b.dataset;
+  if(d.nav!==undefined){go(d.nav==="0"?today():msYmd(ymdMs(day)+(+d.nav)*DAY));return}
+  if(d.d){go(d.d);return}
+  if(d.mm){const j=jp(ymdMs(day));let m=j.month+(-d.mm),y=j.year;if(m>12){m=1;y++}if(m<1){m=12;y--}day=msYmd(msOf(y,m,1));render();return}
+  if(locked()&&b.id!=="reopen"&&b.id!=="pdf2")return;
+  if(d.ck!==undefined){R.checks[d.ck].done=!R.checks[d.ck].done;touch();$("checks").innerHTML=checksH();sheet()}
+  else if(d.ckx!==undefined){R.checks.splice(d.ckx,1);touch();$("checks").innerHTML=checksH()}
+  else if(d.tk!==undefined){R.tasks[d.tk].done=!R.tasks[d.tk].done;touch();$("tasks").innerHTML=tasksH();sheet()}
+  else if(d.tkx!==undefined){R.tasks.splice(d.tkx,1);touch();$("tasks").innerHTML=tasksH();sheet()}
+  else if(d.mood!==undefined){R.mood=+d.mood;touch();document.querySelectorAll("[data-mood]").forEach(x=>x.classList.toggle("on",+x.dataset.mood===R.mood));sheet()}
+  else if(b.id==="cadd")addCheck();else if(b.id==="tadd")addTask();
+  else if(b.id==="tsave"){const L=$("tpl").value.split("\n").map(s=>s.trim()).filter(Boolean);if(L.length){DB.template=L;save();toast("چک‌لیست پیش‌فرض ذخیره شد")}}
+  else if(b.id==="imp"){let n=0;live.todo.filter(t=>t.status==="done").forEach(t=>{if(!R.tasks.some(x=>x.t===t.title)){R.tasks.push({id:uid(),t:t.title,done:true});n++}});touch();$("tasks").innerHTML=tasksH();$("ring").innerHTML=ring();sheet();toast(n?`${fn(n)} کار اضافه شد`:"چیز تازه‌ای نبود")}
+  else if(b.id==="submit")submit();else if(b.id==="reopen"){R.status="draft";(R.log=R.log||[]).push({at:new Date().toISOString(),a:"باز شد برای ویرایش"});touch();flush();render()}
+  else if(b.id==="pdf2")window.print()});
+out.addEventListener("keydown",e=>{if(e.key!=="Enter")return;if(e.target.id==="tin"){e.preventDefault();addTask()}if(e.target.id==="cin"){e.preventDefault();addCheck()}});
+function addTask(){const i=$("tin"),v=i.value.trim();if(!v)return;R.tasks.push({id:uid(),t:v,done:true});i.value="";touch();$("tasks").innerHTML=tasksH();sheet();i.focus()}
+function addCheck(){const i=$("cin"),v=i.value.trim();if(!v)return;R.checks.push({t:v,done:false,custom:true});i.value="";touch();$("checks").innerHTML=checksH();i.focus()}
+function submit(){
+  if(!(R.manager||"").trim()){toast("نام مدیر شیفت را بنویسید",1);document.querySelector('[data-f="manager"]').focus();return}
+  if(!R.tasks.length&&!(R.summary||"").trim()){toast("حداقل یک کار یا خلاصهٔ روز را بنویسید",1);return}
+  const p=prog();if(p.d<p.n&&!confirm(`${fn(p.n-p.d)} مورد هنوز تیک نخورده. با همین حال ثبت شود؟`))return;
+  R.status="submitted";R.submittedAt=new Date().toISOString();R.snapshot={deals:live.deals,sold:live.sold,benefit:live.benefit,spent:live.spent,cashIn:live.cashIn,cashOut:live.cashOut,expected:expected()};
+  (R.log=R.log||[]).push({at:R.submittedAt,a:"ثبت نهایی توسط "+R.manager});if(!DB.staff.includes(R.manager.trim()))DB.staff.push(R.manager.trim());
+  touch();flush();render();toast("گزارش ثبت شد ✓");
+}
+$("pdf").onclick=()=>window.print();
+render();
+</script>
+</body>
+</html>

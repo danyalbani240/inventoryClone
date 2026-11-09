@@ -48,6 +48,7 @@ const ALLOWED_KEYS = new Set([
   "shop-payables-v1",
   "daily-todo-manager-tasks-v1",
   "contacts-manager-v1",
+  "shop-daily-reports-v1",
 ]);
 
 // ---------- git sync (optional) ----------
